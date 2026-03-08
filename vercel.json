@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/ingest",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cluster",
+      "schedule": "5,20,35,50 * * * *"
+    },
+    {
+      "path": "/api/analyze",
+      "schedule": "10,25,40,55 * * * *"
+    }
+  ]
+}
