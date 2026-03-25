@@ -1,45 +1,59 @@
 // ============================================================
-// Triangulate — StatusBar Component (Chunk 1.3)
+// Triangulate — StatusBar Component (Chunk 1.3 + 11.5)
 // 28px fixed bottom, monospace 11px, hidden on mobile
+// Polls /api/health every 60s for real pipeline data
 // ============================================================
 
-interface StatusBarProps {
-  sourceCount?: number;
-  totalSources?: number;
-  lastIngestMinutes?: number;
-  pipelineStatus?: "ok" | "degraded" | "down";
-  gciScore?: number;
-  activeFilters?: string[];
+import { useState, useEffect } from 'react';
+
+interface HealthData {
+  status: 'green' | 'yellow' | 'red';
+  sources: { active: number };
+  articles: { lastIngestAgo: string };
+  gci: { latest: number | null };
 }
 
-export default function StatusBar({
-  sourceCount = 52,
-  totalSources = 55,
-  lastIngestMinutes = 4,
-  pipelineStatus = "ok",
-  gciScore,
-  activeFilters = [],
-}: StatusBarProps) {
-  const statusColor =
-    pipelineStatus === "ok"
-      ? "bg-brand-green"
-      : pipelineStatus === "degraded"
-        ? "bg-brand-amber"
-        : "bg-brand-red";
+export default function StatusBar() {
+  const [health, setHealth] = useState<HealthData | null>(null);
 
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchHealth() {
+      try {
+        const res = await fetch('/api/health');
+        if (res.ok && mounted) {
+          setHealth(await res.json());
+        }
+      } catch { /* silent */ }
+    }
+
+    fetchHealth();
+    const interval = setInterval(fetchHealth, 60_000);
+    return () => { mounted = false; clearInterval(interval); };
+  }, []);
+
+  const statusColor =
+    health?.status === 'green'
+      ? 'bg-brand-green'
+      : health?.status === 'yellow'
+        ? 'bg-brand-amber'
+        : 'bg-brand-red';
+
+  const gciScore = health?.gci?.latest;
   const gciColor =
     gciScore != null
-      ? gciScore >= 70
-        ? "text-brand-green"
-        : gciScore >= 40
-          ? "text-brand-amber"
-          : "text-brand-red"
-      : "text-ink-faint";
+      ? gciScore >= 0.7
+        ? 'text-brand-green'
+        : gciScore >= 0.4
+          ? 'text-brand-amber'
+          : 'text-brand-red'
+      : 'text-ink-faint';
 
   return (
     <footer
       className="app-shell-statusbar hidden md:flex items-center justify-between px-3 bg-paper border-t border-border text-[11px] font-mono text-ink-faint"
-      style={{ height: "var(--shell-statusbar-height)" }}
+      style={{ height: 'var(--shell-statusbar-height)' }}
       role="status"
       aria-label="Application status"
     >
@@ -48,37 +62,21 @@ export default function StatusBar({
         <div className="flex items-center gap-1.5">
           <span className={`w-1.5 h-1.5 rounded-full ${statusColor}`} aria-hidden="true" />
           <span>
-            {sourceCount}/{totalSources} sources
+            {health?.sources?.active ?? '--'} sources
           </span>
         </div>
         <span className="text-ink-faint/50">|</span>
-        <span>Last: {lastIngestMinutes}m ago</span>
+        <span>Last: {health?.articles?.lastIngestAgo ?? '--'}</span>
       </div>
 
-      {/* Center: Active filter summary */}
-      {activeFilters.length > 0 && (
-        <div className="flex items-center gap-1.5 overflow-hidden">
-          {activeFilters.map((filter) => (
-            <span
-              key={filter}
-              className="px-1.5 py-0.5 bg-ink/5 rounded text-[10px] whitespace-nowrap"
-            >
-              {filter}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Right: GCI + mode */}
+      {/* Right: GCI + shortcuts hint */}
       <div className="flex items-center gap-3">
         {gciScore != null && (
           <span className={`font-semibold ${gciColor}`}>
-            GCI {gciScore}
+            GCI {Math.round(gciScore * 100)}
           </span>
         )}
-        <span className="text-ink-faint/40" aria-hidden="true">
-          |
-        </span>
+        <span className="text-ink-faint/40" aria-hidden="true">|</span>
         <span>
           <kbd className="text-[10px]">?</kbd> shortcuts
         </span>
