@@ -14,7 +14,7 @@ const PRESETS = [
 
 export default function ConvergenceSlider() {
   const { filters, setFilter } = useFilters();
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const handleMinChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

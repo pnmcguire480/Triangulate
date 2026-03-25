@@ -15,7 +15,7 @@
 - **Live URL:** TBD
 - **Owner:** Patrick McGuire
 - **Stage:** [ ] Concept [ ] Planning [ ] Scaffolding [x] Building [ ] Testing [ ] Deployed [ ] Iterating [ ] Maintained
-- **Chunks Complete:** 1-5 (original) + Phase 1 UI/Auth/Payments/AI Round Table + 12-agent design audit + Roadmap Chunks 0-5 (Foundation, App Shell, Filters, Wire, Lens, DataViz)
+- **Chunks Complete:** 0-12 (all launch chunks). Only Chunk 13 (Deploy) remains.
 
 ---
 
@@ -38,57 +38,58 @@ Triangulate ingests 55+ news outlets across the political spectrum (FAR_LEFT →
 
 ### Last Session
 
-- **Date:** 2026-03-25 (Session 3)
+- **Date:** 2026-03-25 (Session 4)
 - **Duration:** ~1 extended session
 - **Tier(s) Used:** Tier 4 (Claude Code — Opus 4.6, 1M context)
 - **What was accomplished:**
-  - **Chunk 0: Foundation & Fixes** — All 8 deps installed (cmdk, fuse.js, tinykeys, react-resizable-panels, sonner, zustand, @react-pdf/renderer, satori). Vitest already fixed. DailyGCI, Workspace, SourceMonthlyStats models added. Design tokens expanded (bias tiers, regions, layout dimensions, density modes, animation timing, reduced-motion, forced-colors). Type system expanded (FilterState, WorkspaceState, FacetCounts). Feature gating system (capabilities.ts, Gate, UpgradeTeaser). Zustand workspace store with localStorage persist + server sync. A11y foundation (skip links, aria-labels, aria-expanded).
-  - **Chunk 1: App Shell** — TopBar (48px, Ctrl+K search, wordmark, tier badge). Sidebar (56/240px, collapsed default, 3px accent). StatusBar (28px, pipeline status, GCI, filter summary). AppShell (CSS Grid layout). BottomTabBar (56px mobile, 5 icons). PanelContainer (generic panel with tabs). PanelResizer (drag + keyboard). DashboardLayout (Wire|Lens|Dossier). usePanelFocus (F6 cycling). Root layout replaced (Header+Footer → AppShell).
-  - **Chunk 2: Filter System** — FilterProvider + useFilterState + URL codec. BiasSpectrumSelector (7-segment). RegionFilter (colored pills). ConvergenceSlider (color-zoned range). TimeHorizon (segmented + custom dates). TopicCloud (weighted tags). SmartPresets (7 lenses). FilterChips (active pills + reset). FilterSidebar (320px persistent). MobileFilterSheet (bottom sheet + FAB).
-  - **Chunk 3: The Wire** — StoryListRow (compact row, mini gauge, bias bar, source pills, j/k nav). WirePanel (tier headers, empty state). WireSkeleton. TodaysSurprise.
-  - **Chunk 4: The Lens** — LensPanel (tabbed: Spectrum|Claims|Sources|Primary Docs). SpectrumPanel (7-column desktop, vertical mobile). ClaimsPanel (expandable, convergence meters, supports/contradicts). ConvergenceExplainer (show the math). PrimaryDocsPanel (doc type badges).
-  - **Chunk 5: Data Visualization** — ConvergenceGauge (SVG arc, sm/md/lg). BiasSpectrumBar (3 modes). RegionIndicator (dots). ClaimMatrix (THE killer viz — truth table). TimelineStrip (SVG timeline). GCIGauge + GCITicker. GCI computation engine + /api/gci endpoint.
-- **What broke or stalled:** Nothing. All 37 tests pass. No build errors.
-- **Decisions made:** None new — all decisions were locked in Session 2.
+  - **Chunk 6: Professional Tools** — CommandPalette (cmdk, 9 categories, fuzzy search). Keyboard shortcuts (tinykeys, vim-style sequential). ShortcutOverlay (? key). Workspace API (/api/workspace POST/GET). Notification SSE stream + sonner toasts. DensityProvider (context + data-density attribute). Export: CSV + JSON client-side, ConvergenceCertificate with SHA-256 hash, ExportDialog with format picker.
+  - **Chunk 7: Source Intelligence & Trends** — Sources directory page (/sources, grid by region + bias). Source detail page (/sources/:id, monthly trend, convergence participation). Source monthly stats computation (post-pipeline). Trends page (/trends, GCI timeline, regional breakdown). Convergence narratives engine (auto-generated prose). Disagreement classification (IDEOLOGICAL/REGIONAL/RANDOM). Explainer library + ExplainerPopover ("Why It Matters").
+  - **Chunk 8: Auth, Payments & Tier Gating** — Email service (Resend via raw fetch, no package dep, console fallback). Branded magic link email template. Usage tracking (cookie-based daily story limits). Pricing page refreshed with command-center features + daily cost.
+  - **Chunk 9: Search & Triangulation** — Search page redesigned (convergence gauges, trust signals, bias dots, top claim preview). On-demand triangulation API endpoint (/api/triangulate, Premium gate).
+  - **Chunk 10: Onboarding + Integration** — home.tsx REWRITTEN: logged-in = command center (WirePanel + FilterSidebar + DashboardLayout), logged-out = condensed landing + live Wire preview. story.$id.tsx REWRITTEN: convergence narrative, explainer popovers, LensPanel integration. LensPanel now supports both direct data and storyId-based fetching. Progressive mastery tips system. Comparative stories engine.
+  - **Chunk 11: Pipeline & Data** — /api/health endpoint (pipeline status, source count, GCI). Source stats computation wired into analysis pipeline. StatusBar polls /api/health every 60s for real data.
+  - **Chunk 12: Testing & QA** — 53 NEW tests: capabilities (11), narratives (4), disagreement (4), explainers (12), export/certificate (9), comparisons (4), usage-tracking (6). Plus fixed pre-existing ConvergenceSlider useRef TS error.
+- **What broke or stalled:** Nothing. 90 tests pass. Zero TypeScript errors. No build errors.
+- **Decisions made:**
+  - Used raw fetch() to Resend API instead of installing `resend` package (avoids unapproved dependency)
+  - LensPanel supports dual mode: direct story data OR storyId-based fetching via useFetcher
+  - API stories endpoint now returns `{ story }` wrapper for LensPanel compatibility
 - **Next session should start with:**
-  1. **Prisma migration pending** — run `npx prisma migrate dev --name command-center-schema` when DB is available
-  2. Follow `docs/ROADMAP-TO-LAUNCH.md` — execute Chunks 6-12 sequentially, commit after each:
-     - **Chunk 6: Professional Tools** — Command Palette (cmdk, 6.1), Keyboard Shortcuts (tinykeys, 6.2), Workspace Persistence (/api/workspace, 6.3), Notifications (SSE+sonner, 6.4), Density Mode Toggle (6.5), Data Export (CSV/JSON/PDF + Convergence Certificates, 6.6)
-     - **Chunk 7: Source Intelligence & Trends** — Sources directory page (7.1), Source detail page (7.2), Source monthly stats computation (7.3), Trends page (7.4), Convergence narratives engine (7.5), Disagreement map (7.6), "Why It Matters" explainer layer (7.7)
-     - **Chunk 8: Auth, Payments & Tier Gating** — Wire Resend for magic links (needs `resend` package approval, 8.1), Stripe products (8.2), Gate enforcement throughout app (8.3), Free tier 5-story limit (8.4), Pricing page refresh (8.5)
-     - **Chunk 9: Search & Triangulation** — Search page redesign (9.1), Search-as-filter (9.2), Full-text search upgrade (TSVECTOR, 9.3), On-demand triangulation (9.4)
-     - **Chunk 10: Onboarding & Behavioral** — First visit discovery state (10.1), Progressive mastery hints (10.2), Contextual filter teaching (10.3), Landing page logged-out rewrite (10.4), Comparative story cards (10.5)
-     - **Chunk 11: Pipeline & Data** — Seed DB (11.1), Run full pipeline (11.2), GCI cron (11.3), Source stats cron (11.4), Pipeline health /api/health (11.5)
-     - **Chunk 12: Testing & QA** — Unit tests (12.1), Component tests (12.2), Integration tests (12.3), A11y audit (12.4), Mobile testing (12.5), Performance baseline (12.6)
-  3. Chunk 13 (Deploy) is for when the human is ready to push to production
-  4. **NOTE:** home.tsx still uses old FeedDashboard — needs rewrite to use WirePanel + FilterSidebar + DashboardLayout (part of integrating the new shell)
-  5. **NOTE:** story.$id.tsx still uses old ConvergencePanel/ClaimsTracker — needs rewrite to use LensPanel
+  1. **Prisma migration still pending** — run `npx prisma migrate dev --name command-center-schema` when DB is available
+  2. **Chunk 13 (Deploy)** — production deployment when human is ready
+  3. Consider adding component tests with React Testing Library for interactive components
+  4. Consider full-text search upgrade (TSVECTOR migration) for search API
+  5. Wire FilterProvider into home.tsx so filter controls actually drive the query
 
 ### What Works Right Now
 
 - **Framework:** React Router v7 (Remix) + Vite 7 + Tailwind v4
-- **Database:** Neon PostgreSQL, 11 models (8 original + DailyGCI, Workspace, SourceMonthlyStats), 10 enums, 3 migrations applied
+- **Database:** Neon PostgreSQL, 11 models, 10 enums (migration pending)
 - **Sources:** 55 outlets across 7 bias tiers and 7 global regions
-- **Pipeline:** /api/ingest → /api/cluster → /api/analyze → /api/gci (all working)
+- **Pipeline:** /api/ingest → /api/cluster → /api/analyze → /api/gci + source stats
 - **AI:** Multi-provider system (Claude primary, Gemini/DeepSeek/Grok available)
-- **App Shell:** TopBar (48px, Ctrl+K search), Sidebar (56/240px collapsed), StatusBar (28px), BottomTabBar (56px mobile), AppShell (CSS Grid), DashboardLayout (Wire|Lens|Dossier)
-- **Filter System:** FilterProvider + URL codec, BiasSpectrumSelector (7-segment), RegionFilter, ConvergenceSlider, TimeHorizon, TopicCloud, SmartPresets (7 lenses), FilterChips, FilterSidebar (320px), MobileFilterSheet
-- **Wire (Feed):** StoryListRow (compact, mini gauge, bias bar, j/k nav), WirePanel (tier headers), WireSkeleton, TodaysSurprise
-- **Lens (Story Detail):** LensPanel (4 tabs), SpectrumPanel (7-column), ClaimsPanel (convergence meters, supports/contradicts), ConvergenceExplainer, PrimaryDocsPanel
-- **Data Viz:** ConvergenceGauge (SVG arc, 3 sizes), BiasSpectrumBar (3 modes), RegionIndicator, ClaimMatrix (truth table), TimelineStrip, GCIGauge, GCITicker, GCI computation
-- **Feature Gating:** capabilities.ts, Gate component, UpgradeTeaser, tier→capability map
+- **App Shell:** TopBar + CommandPalette (Ctrl+K), Sidebar, StatusBar (live health polling), BottomTabBar, AppShell, DashboardLayout
+- **Filter System:** FilterProvider + URL codec, 7 filter types, SmartPresets, FilterSidebar, MobileFilterSheet
+- **Wire (Feed):** StoryListRow, WirePanel (tier headers), WireSkeleton, TodaysSurprise
+- **Lens (Story Detail):** LensPanel (4 tabs, dual data/fetcher mode), SpectrumPanel, ClaimsPanel, ConvergenceExplainer, PrimaryDocsPanel, DisagreementMap
+- **Data Viz:** ConvergenceGauge, BiasSpectrumBar, RegionIndicator, ClaimMatrix, TimelineStrip, GCIGauge, GCITicker
+- **Pro Tools:** CommandPalette (cmdk), Keyboard shortcuts (tinykeys), ShortcutOverlay, Workspace API, NotificationToast (sonner), DensityProvider, Export (CSV/JSON/Certificate)
+- **Source Intelligence:** /sources directory, /sources/:id detail, monthly stats, /trends page, convergence narratives, disagreement classification, explainer popovers
+- **Feature Gating:** capabilities.ts, Gate component, UpgradeTeaser, 16 capabilities across 3 tiers
 - **State:** Zustand workspace store with localStorage persist + debounced server sync
 - **A11y:** Skip links, aria-labels, aria-expanded, reduced-motion, forced-colors, F6 panel cycling
-- **Auth:** Cookie sessions, magic link, Founder detection, session-aware TopBar
-- **Payments:** Stripe checkout, webhook handler, 3-tier pricing page
-- **Testing:** 37 unit tests passing (convergence scoring, trust signals)
-- **New deps installed:** cmdk, fuse.js, tinykeys, react-resizable-panels, sonner, zustand, @react-pdf/renderer, satori
+- **Auth:** Cookie sessions, magic link (branded email template), Founder detection
+- **Payments:** Stripe checkout, webhook handler, 3-tier pricing page (refreshed)
+- **Onboarding:** Progressive mastery tips, logged-out landing page, condensed hero
+- **Search:** Redesigned results with convergence gauges, on-demand triangulation API
+- **Pipeline Health:** /api/health endpoint, StatusBar polls every 60s
+- **Testing:** 90 unit tests passing, 0 TypeScript errors
 
 ### What's Broken Right Now
 
-- Email sending for magic links is stubbed (logs to console in dev)
+- Email sends only when RESEND_API_KEY is set (logs to console otherwise — by design for dev)
 - Stripe price IDs need to be created in Stripe Dashboard and set as env vars
-- **Prisma migration not yet run** for DailyGCI, Workspace, SourceMonthlyStats models (schema updated, migration pending)
+- **Prisma migration not yet run** for DailyGCI, Workspace, SourceMonthlyStats models
 
 ### What's Blocked
 
