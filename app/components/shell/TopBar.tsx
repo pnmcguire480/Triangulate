@@ -19,9 +19,10 @@ interface TopBarProps {
   user: TopBarUser | null;
   isDark: boolean;
   onToggleTheme: () => void;
+  onOpenCommandPalette?: () => void;
 }
 
-export default function TopBar({ user, isDark, onToggleTheme }: TopBarProps) {
+export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalette }: TopBarProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -34,12 +35,16 @@ export default function TopBar({ user, isDark, onToggleTheme }: TopBarProps) {
     }
   }, [searchOpen]);
 
-  // Ctrl+K to open search
+  // Ctrl+K: prefer command palette if available, else local search
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        setSearchOpen(true);
+        if (onOpenCommandPalette) {
+          onOpenCommandPalette();
+        } else {
+          setSearchOpen(true);
+        }
       }
       if (e.key === "Escape") {
         setSearchOpen(false);
@@ -47,7 +52,7 @@ export default function TopBar({ user, isDark, onToggleTheme }: TopBarProps) {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [onOpenCommandPalette]);
 
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -76,7 +81,7 @@ export default function TopBar({ user, isDark, onToggleTheme }: TopBarProps) {
       {/* Center: Search (desktop) */}
       <div className="flex-1 flex justify-center px-4">
         <button
-          onClick={() => setSearchOpen(true)}
+          onClick={() => onOpenCommandPalette ? onOpenCommandPalette() : setSearchOpen(true)}
           className="hidden md:flex items-center gap-2 w-full max-w-md h-8 px-3 rounded-sm border border-border bg-surface text-sm text-ink-muted hover:border-border-strong transition-colors"
         >
           <Search className="w-3.5 h-3.5" aria-hidden="true" />
