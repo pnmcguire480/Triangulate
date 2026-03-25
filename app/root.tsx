@@ -1,17 +1,14 @@
-import { useState, useEffect } from "react";
 import {
   isRouteErrorResponse,
   Links,
   Meta,
-  Outlet,
   Scripts,
   ScrollRestoration,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import { getUser } from "~/lib/auth";
-import Header from "~/components/layout/Header";
-import Footer from "~/components/layout/Footer";
+import AppShell from "~/components/shell/AppShell";
 import "./app.css";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -88,7 +85,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="min-h-screen flex flex-col bg-paper text-ink font-body antialiased transition-colors duration-300">
+      <body className="h-screen overflow-hidden bg-paper text-ink font-body antialiased transition-colors duration-300">
         <a href="#main-content" className="skip-link">Skip to main content</a>
         <a href="#feed" className="skip-link">Skip to feed</a>
         <a href="#filters" className="skip-link">Skip to filters</a>
@@ -102,29 +99,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App({ loaderData }: Route.ComponentProps) {
   const user = loaderData?.user || null;
-  const [isDark, setIsDark] = useState(false);
 
-  // Sync with actual DOM state on mount
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
-  }, []);
-
-  function toggleTheme() {
-    const next = !isDark;
-    setIsDark(next);
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("triangulate-theme", next ? "dark" : "light");
-  }
-
-  return (
-    <>
-      <Header user={user} isDark={isDark} onToggleTheme={toggleTheme} />
-      <main className="flex-1">
-        <Outlet />
-      </main>
-      <Footer />
-    </>
-  );
+  return <AppShell user={user} />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
