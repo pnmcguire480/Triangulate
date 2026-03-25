@@ -1,5 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// prisma/schema.prisma
+// Triangulate — News Convergence Engine
+// Chunk 2: Database schema
 
 generator client {
   provider = "prisma-client-js"
@@ -10,5 +11,245 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Full schema will be added in Chunk 2
-// For now, this validates that Prisma is installed correctly
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum BiasCategory {
+  LEFT
+  CENTER_LEFT
+  CENTER
+  CENTER_RIGHT
+  RIGHT
+}
+
+enum BiasTier {
+  FAR_LEFT
+  LEFT
+  CENTER_LEFT
+  CENTER
+  CENTER_RIGHT
+  RIGHT
+  FAR_RIGHT
+}
+
+enum ContentType {
+  REPORTING
+  COMMENTARY
+  UNKNOWN
+}
+
+enum TrustSignal {
+  SINGLE_SOURCE
+  CONTESTED
+  CONVERGED
+  SOURCE_BACKED
+  INSTITUTIONALLY_VALIDATED
+}
+
+enum ClaimType {
+  FACTUAL
+  EVALUATIVE
+}
+
+enum DocType {
+  COURT_FILING
+  LEGISLATION
+  OFFICIAL_STATEMENT
+  GOVERNMENT_DATA
+  TRANSCRIPT
+  RESEARCH
+  OTHER
+}
+
+enum UserTier {
+  FREE
+  STANDARD
+  PREMIUM
+}
+
+enum Region {
+  US
+  UK
+  EUROPE
+  MIDDLE_EAST
+  ASIA_PACIFIC
+  CANADA
+  LATIN_AMERICA
+  AFRICA
+  OCEANIA
+  GLOBAL            // Wire services, multi-region outlets
+}
+
+// ─────────────────────────────────────────────
+// MODELS
+// ─────────────────────────────────────────────
+
+model Source {
+  id           String      @id @default(uuid())
+  name         String      @unique
+  url          String      @unique
+  rssFeedUrl   String
+  biasCategory BiasCategory
+  biasTier     BiasTier
+  region       Region      @default(US)
+  affiliateUrl String?
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+
+  articles     Article[]
+  monthlyStats SourceMonthlyStats[]
+
+  @@map("sources")
+}
+
+model Story {
+  id              String      @id @default(uuid())
+  generatedTitle  String
+  summary         String?
+  trustSignal     TrustSignal @default(SINGLE_SOURCE)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  lastAnalyzedAt  DateTime?
+
+  articles        Article[]
+  claims          Claim[]
+  primaryDocs     PrimaryDoc[]
+
+  @@map("stories")
+}
+
+model Article {
+  id           String      @id @default(uuid())
+  sourceId     String
+  title        String
+  url          String      @unique
+  publishedAt  DateTime
+  contentType  ContentType @default(UNKNOWN)
+  rawText      String?
+  storyId      String?
+  createdAt    DateTime    @default(now())
+
+  source       Source      @relation(fields: [sourceId], references: [id])
+  story        Story?      @relation(fields: [storyId], references: [id])
+  claimSources ClaimSource[]
+
+  @@index([sourceId])
+  @@index([storyId])
+  @@index([publishedAt])
+  @@map("articles")
+}
+
+model Claim {
+  id               String    @id @default(uuid())
+  storyId          String
+  claimText        String
+  claimType        ClaimType @default(FACTUAL)
+  convergenceScore Float     @default(0)
+  createdAt        DateTime  @default(now())
+
+  story            Story     @relation(fields: [storyId], references: [id])
+  sources          ClaimSource[]
+
+  @@index([storyId])
+  @@map("claims")
+}
+
+model ClaimSource {
+  id        String   @id @default(uuid())
+  claimId   String
+  articleId String
+  quote     String?
+  supports  Boolean  @default(true)
+
+  claim     Claim    @relation(fields: [claimId], references: [id])
+  article   Article  @relation(fields: [articleId], references: [id])
+
+  @@unique([claimId, articleId])
+  @@index([claimId])
+  @@index([articleId])
+  @@map("claim_sources")
+}
+
+model PrimaryDoc {
+  id        String   @id @default(uuid())
+  storyId   String
+  docType   DocType
+  url       String
+  title     String
+  createdAt DateTime @default(now())
+
+  story     Story    @relation(fields: [storyId], references: [id])
+
+  @@index([storyId])
+  @@map("primary_docs")
+}
+
+model User {
+  id                    String      @id @default(uuid())
+  email                 String      @unique
+  name                  String?
+  tier                  UserTier    @default(FREE)
+  stripeCustomerId      String?     @unique
+  priceLocked           Float?
+  isFounder             Boolean     @default(false)
+  subscriptionActive    Boolean     @default(false)
+  joinedAt              DateTime    @default(now())
+  lastSignIn            DateTime?
+  magicToken            String?
+  magicTokenExpiresAt   DateTime?
+
+  workspaces            Workspace[]
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// COMMAND CENTER MODELS (Chunk 0.3)
+// ─────────────────────────────────────────────
+
+model DailyGCI {
+  id            String   @id @default(uuid())
+  date          DateTime @unique @db.Date
+  score         Float
+  breadth       Float    // % of bias tiers represented in converged stories
+  depth         Float    // average convergence score of qualifying stories
+  contestation  Float    // penalty factor from contested claims
+  storyCount    Int      // number of stories used in computation
+  createdAt     DateTime @default(now())
+
+  @@index([date])
+  @@map("daily_gci")
+}
+
+model Workspace {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  state     Json     // panel sizes, filters, active view, density, etc.
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("workspaces")
+}
+
+model SourceMonthlyStats {
+  id               String   @id @default(uuid())
+  sourceId         String
+  month            DateTime @db.Date  // first day of the month
+  claimsTotal      Int      @default(0)
+  claimsConfirmed  Int      @default(0)
+  confirmationRate Float    @default(0)
+  createdAt        DateTime @default(now())
+
+  source           Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, month])
+  @@index([sourceId])
+  @@map("source_monthly_stats")
+}

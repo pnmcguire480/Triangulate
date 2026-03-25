@@ -1,0 +1,454 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Triangulate — Brand Theme (Tailwind v4 CSS-based config)
+   Light: Old printing press — ink, paper, rule lines, gravitas
+   Dark: Futuristic command center — electric, glowing, digital
+   ============================================================ */
+
+@theme {
+  /* Brand Colors */
+  --color-brand-navy: #1A1A2E;
+  --color-brand-accent: #16213E;
+  --color-brand-warm: #FAF9F6;
+  --color-brand-green: #2D6A4F;
+  --color-brand-amber: #E9C46A;
+  --color-brand-red: #E76F51;
+  --color-brand-teal: #264653;
+  --color-brand-purple: #6C63FF;
+
+  /* Semantic colors — light mode defaults (overridden by .dark) */
+  --color-ink: #1A1A2E;
+  --color-ink-light: #3D3D56;
+  --color-ink-muted: #6B6B82;
+  --color-ink-faint: #7A7A92;
+  --color-paper: #FAF9F6;
+  --color-paper-aged: #F5F0E8;
+  --color-paper-dark: #EDE8DD;
+  --color-surface: #FFFFFF;
+  --color-border: rgba(26, 26, 46, 0.08);
+  --color-border-strong: rgba(26, 26, 46, 0.15);
+
+  /* Neon accents for dark mode (used via .dark override) */
+  --color-neon-green: #00FF88;
+  --color-neon-cyan: #00D4FF;
+  --color-neon-amber: #FFD166;
+  --color-neon-red: #FF6B6B;
+  --color-neon-purple: #A78BFA;
+
+  /* Bias Tier Colors */
+  --color-bias-far-left: #1E40AF;
+  --color-bias-left: #3B82F6;
+  --color-bias-center-left: #60A5FA;
+  --color-bias-center: #6B7280;
+  --color-bias-center-right: #F97316;
+  --color-bias-right: #EF4444;
+  --color-bias-far-right: #991B1B;
+
+  /* Region Colors */
+  --color-region-us: #3B82F6;
+  --color-region-uk: #8B5CF6;
+  --color-region-europe: #06B6D4;
+  --color-region-middle-east: #F59E0B;
+  --color-region-asia-pacific: #EC4899;
+  --color-region-canada: #EF4444;
+  --color-region-latin-america: #10B981;
+  --color-region-africa: #F97316;
+  --color-region-oceania: #14B8A6;
+  --color-region-global: #6B7280;
+
+  /* Layout Dimensions */
+  --shell-topbar-height: 48px;
+  --shell-statusbar-height: 28px;
+  --shell-sidebar-collapsed: 56px;
+  --shell-sidebar-expanded: 240px;
+  --shell-bottom-tab-height: 56px;
+
+  /* Animation Timing */
+  --timing-micro: 150ms;
+  --timing-transition: 250ms;
+  --timing-structural: 400ms;
+  --timing-data: 600ms;
+
+  /* Density Mode Tokens — Comfortable (default) */
+  --density-row-height: 40px;
+  --density-body-size: 0.875rem;
+  --density-cell-padding: 0.5rem 0.75rem;
+  --density-gap: 0.5rem;
+
+  /* Font Families */
+  --font-headline: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+}
+
+/* ============================================================
+   Dark Mode — Futuristic Command Center
+   ============================================================ */
+
+.dark {
+  --color-ink: #E8E6F0;
+  --color-ink-light: #C4C1D0;
+  --color-ink-muted: #8A87A0;
+  --color-ink-faint: #706D88;
+  --color-paper: #0A0A12;
+  --color-paper-aged: #10101C;
+  --color-paper-dark: #161625;
+  --color-surface: #12121F;
+  --color-border: rgba(255, 255, 255, 0.18);
+  --color-border-strong: rgba(255, 255, 255, 0.25);
+
+  /* Override brand colors for dark mode vibrancy */
+  --color-brand-green: #00FF88;
+  --color-brand-amber: #FFD166;
+  --color-brand-red: #FF6B6B;
+  --color-brand-teal: #00D4FF;
+  --color-brand-purple: #A78BFA;
+}
+
+/* ============================================================
+   Base Styles
+   ============================================================ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background-color: rgba(45, 106, 79, 0.2);
+}
+
+.dark ::selection {
+  background-color: rgba(0, 255, 136, 0.2);
+}
+
+/* ============================================================
+   Rule Lines — Light: newspaper dividers / Dark: glowing lines
+   ============================================================ */
+
+.rule-line {
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.rule-line-thick {
+  border: none;
+  border-top: 2px solid var(--color-border-strong);
+}
+
+.rule-line-double {
+  border: none;
+  border-top: 3px double var(--color-border-strong);
+}
+
+.dark .rule-line {
+  border-top-color: rgba(0, 255, 136, 0.08);
+}
+
+.dark .rule-line-thick {
+  border-top-color: rgba(0, 255, 136, 0.15);
+}
+
+.dark .rule-line-double {
+  border-top-color: rgba(0, 255, 136, 0.15);
+}
+
+/* ============================================================
+   Dateline — Light: small caps / Dark: terminal readout
+   ============================================================ */
+
+.dateline {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.dark .dateline {
+  font-family: var(--font-mono);
+  color: var(--color-ink-faint);
+  letter-spacing: 0.15em;
+}
+
+/* ============================================================
+   Score Display — monospace for data/numbers
+   ============================================================ */
+
+.score {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.dark .score {
+  color: var(--color-neon-cyan);
+}
+
+/* ============================================================
+   Dark Mode — Glow Effects
+   ============================================================ */
+
+.dark .glow-green {
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.3), 0 0 20px rgba(0, 255, 136, 0.1);
+}
+
+.dark .glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.3), 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+.dark .glow-subtle {
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.05), 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode cards get subtle border glow instead of shadows */
+.dark .card-glow {
+  border: 1px solid rgba(0, 255, 136, 0.08);
+  background: rgba(18, 18, 31, 0.8);
+}
+
+.dark .card-glow:hover {
+  border-color: rgba(0, 255, 136, 0.15);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.05);
+}
+
+/* ============================================================
+   Surface Overrides — bg-white → bg-surface
+   ============================================================ */
+
+.dark .bg-white {
+  background-color: var(--color-surface) !important;
+}
+
+/* ============================================================
+   Dark Mode — Headline font swap (serif → mono for cyber feel)
+   Optional: uncomment to use monospace headlines in dark mode
+   ============================================================ */
+/*
+.dark .font-headline {
+  font-family: var(--font-mono);
+  letter-spacing: -0.02em;
+}
+*/
+
+/* ============================================================
+   Custom Animations
+   ============================================================ */
+
+/* Trust signal pulse — brighter in dark mode */
+@keyframes signal-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.signal-pulse {
+  animation: signal-pulse 2s ease-in-out infinite;
+}
+
+.dark .signal-pulse {
+  filter: brightness(1.2);
+}
+
+/* Fade in (slide up) */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+/* Stagger children */
+.stagger-children > * {
+  opacity: 0;
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.4s; }
+
+/* ============================================================
+   Custom scrollbar — thin, matches theme
+   ============================================================ */
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-strong);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-ink-faint);
+}
+
+/* ============================================================
+   Scanline effect for dark mode (subtle CRT feel)
+   ============================================================ */
+
+.dark .scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 136, 0.015) 2px,
+    rgba(0, 255, 136, 0.015) 4px
+  );
+}
+
+/* ============================================================
+   Density Modes — data-density attribute on <html>
+   ============================================================ */
+
+[data-density="compact"] {
+  --density-row-height: 32px;
+  --density-body-size: 0.8125rem;
+  --density-cell-padding: 0.25rem 0.5rem;
+  --density-gap: 0.25rem;
+}
+
+[data-density="spacious"] {
+  --density-row-height: 52px;
+  --density-body-size: 0.9375rem;
+  --density-cell-padding: 0.75rem 1rem;
+  --density-gap: 0.75rem;
+}
+
+/* ============================================================
+   Reduced Motion — respect user preference
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .signal-pulse {
+    animation: none;
+  }
+
+  .stagger-children > * {
+    opacity: 1;
+    animation: none;
+  }
+
+  .animate-fade-in {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Forced Colors — Windows High Contrast support
+   ============================================================ */
+
+@media (forced-colors: active) {
+  .rule-line,
+  .rule-line-thick,
+  .rule-line-double {
+    border-color: CanvasText;
+  }
+
+  .signal-pulse {
+    forced-color-adjust: none;
+  }
+}
+
+/* ============================================================
+   Skip Links — visible on focus for keyboard navigation
+   ============================================================ */
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0 0 4px 4px;
+  text-decoration: none;
+  transition: top var(--timing-micro) ease;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ============================================================
+   App Shell — fixed frame layout
+   ============================================================ */
+
+.app-shell {
+  display: grid;
+  grid-template-rows: var(--shell-topbar-height) 1fr var(--shell-statusbar-height);
+  grid-template-columns: var(--sidebar-width, var(--shell-sidebar-collapsed)) 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-shell-topbar {
+  grid-column: 1 / -1;
+}
+
+.app-shell-statusbar {
+  grid-column: 1 / -1;
+}
+
+.app-shell-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    grid-template-rows: var(--shell-topbar-height) 1fr var(--shell-bottom-tab-height);
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell-statusbar {
+    display: none;
+  }
+}

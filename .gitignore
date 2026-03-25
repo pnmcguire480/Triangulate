@@ -7,12 +7,12 @@
 # testing
 /coverage
 
-# next.js
+# next.js (legacy)
 /.next/
-/out/
 
-# production
-/build
+# react-router / vite
+/.react-router/
+/build/
 
 # misc
 .DS_Store
@@ -32,8 +32,22 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 # prisma
 prisma/*.db
 prisma/*.db-journal
+
+# IDE
+.vscode/settings.json
+.idea/
+.claude/settings.local.json
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+
+# sensitive files
+ClaudeKey-Triangulate.txt
+*.zip
