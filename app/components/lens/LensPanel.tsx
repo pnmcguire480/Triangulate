@@ -1,14 +1,15 @@
 // ============================================================
-// Triangulate — LensPanel Component (Chunk 4.1)
+// Triangulate — LensPanel Component (Chunk 4.1 + 6/10 integration)
 // Story detail as tabbed panel (Spectrum | Claims | Sources | Primary Docs)
+// Supports both direct data and storyId-based fetching
 // ============================================================
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useFetcher } from "react-router";
 import PanelContainer from "~/components/panels/PanelContainer";
 import SpectrumPanel from "./SpectrumPanel";
 import ClaimsPanel from "./ClaimsPanel";
 import PrimaryDocsPanel from "./PrimaryDocsPanel";
-import type { Story, Article, Claim, PrimaryDoc, Source } from "~/types";
 
 interface LensArticle {
   id: string;
@@ -45,16 +46,21 @@ interface LensPrimaryDoc {
   title: string;
 }
 
+interface StoryData {
+  id: string;
+  generatedTitle: string;
+  summary?: string | null;
+  trustSignal: string;
+  articles: LensArticle[];
+  claims: LensClaim[];
+  primaryDocs: LensPrimaryDoc[];
+}
+
 export interface LensPanelProps {
-  story: {
-    id: string;
-    generatedTitle: string;
-    summary?: string | null;
-    trustSignal: string;
-    articles: LensArticle[];
-    claims: LensClaim[];
-    primaryDocs: LensPrimaryDoc[];
-  } | null;
+  /** Direct story data (from story detail page loader) */
+  story?: StoryData | null;
+  /** Story ID for fetcher-based loading (from Wire panel selection) */
+  storyId?: string | null;
 }
 
 const TABS = [
@@ -64,10 +70,22 @@ const TABS = [
   { id: "primary", label: "Primary Docs" },
 ];
 
-export default function LensPanel({ story }: LensPanelProps) {
+export default function LensPanel({ story: directStory, storyId }: LensPanelProps) {
   const [activeTab, setActiveTab] = useState("spectrum");
+  const fetcher = useFetcher();
 
-  if (!story) {
+  // Fetch story data when storyId changes (and no direct data)
+  useEffect(() => {
+    if (storyId && !directStory) {
+      fetcher.load(`/api/stories/${storyId}`);
+    }
+  }, [storyId]);
+
+  // Determine which story data to use
+  const story = directStory || (fetcher.data?.story as StoryData | undefined) || null;
+  const isLoading = fetcher.state === 'loading';
+
+  if (!story && !storyId) {
     return (
       <PanelContainer title="The Lens" panelId="lens-panel" className="h-full">
         <div className="flex flex-col items-center justify-center h-full py-16 text-center px-4">
@@ -77,6 +95,16 @@ export default function LensPanel({ story }: LensPanelProps) {
           <p className="text-xs text-ink-faint mt-1">
             Select from The Wire or use keyboard (j/k) to navigate
           </p>
+        </div>
+      </PanelContainer>
+    );
+  }
+
+  if (isLoading || !story) {
+    return (
+      <PanelContainer title="The Lens" panelId="lens-panel" className="h-full">
+        <div className="flex items-center justify-center h-full py-16">
+          <p className="text-sm text-ink-muted animate-pulse">Loading story analysis...</p>
         </div>
       </PanelContainer>
     );
@@ -123,7 +151,6 @@ export default function LensPanel({ story }: LensPanelProps) {
 
 // Simple sources tab — grouped list of all articles
 function SourcesTab({ articles }: { articles: LensArticle[] }) {
-  // Group by bias tier
   const grouped = articles.reduce<Record<string, LensArticle[]>>((acc, article) => {
     const tier = article.source.biasTier;
     if (!acc[tier]) acc[tier] = [];
