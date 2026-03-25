@@ -51,29 +51,38 @@ Triangulate ingests 55+ news outlets across the political spectrum (FAR_LEFT →
 - **What broke or stalled:** Nothing. All 37 tests pass. No build errors.
 - **Decisions made:** None new — all decisions were locked in Session 2.
 - **Next session should start with:**
-  1. Follow `docs/ROADMAP-TO-LAUNCH.md` — Chunk 6: Professional Tools
-  2. Task 6.1: Command Palette (cmdk integration)
-  3. Task 6.2: Keyboard Shortcut System (tinykeys)
-  4. Task 6.3: Workspace Persistence (API endpoint)
-  5. Task 6.4: Notification System (SSE + sonner)
-  6. Task 6.5: Density Mode Toggle
-  7. Task 6.6: Data Export (CSV/JSON/PDF + Convergence Certificates)
-  8. Then proceed through Chunks 7-12 per roadmap
-  9. **Prisma migration pending** — run `npx prisma migrate dev --name command-center-schema` when DB is available
+  1. **Prisma migration pending** — run `npx prisma migrate dev --name command-center-schema` when DB is available
+  2. Follow `docs/ROADMAP-TO-LAUNCH.md` — execute Chunks 6-12 sequentially, commit after each:
+     - **Chunk 6: Professional Tools** — Command Palette (cmdk, 6.1), Keyboard Shortcuts (tinykeys, 6.2), Workspace Persistence (/api/workspace, 6.3), Notifications (SSE+sonner, 6.4), Density Mode Toggle (6.5), Data Export (CSV/JSON/PDF + Convergence Certificates, 6.6)
+     - **Chunk 7: Source Intelligence & Trends** — Sources directory page (7.1), Source detail page (7.2), Source monthly stats computation (7.3), Trends page (7.4), Convergence narratives engine (7.5), Disagreement map (7.6), "Why It Matters" explainer layer (7.7)
+     - **Chunk 8: Auth, Payments & Tier Gating** — Wire Resend for magic links (needs `resend` package approval, 8.1), Stripe products (8.2), Gate enforcement throughout app (8.3), Free tier 5-story limit (8.4), Pricing page refresh (8.5)
+     - **Chunk 9: Search & Triangulation** — Search page redesign (9.1), Search-as-filter (9.2), Full-text search upgrade (TSVECTOR, 9.3), On-demand triangulation (9.4)
+     - **Chunk 10: Onboarding & Behavioral** — First visit discovery state (10.1), Progressive mastery hints (10.2), Contextual filter teaching (10.3), Landing page logged-out rewrite (10.4), Comparative story cards (10.5)
+     - **Chunk 11: Pipeline & Data** — Seed DB (11.1), Run full pipeline (11.2), GCI cron (11.3), Source stats cron (11.4), Pipeline health /api/health (11.5)
+     - **Chunk 12: Testing & QA** — Unit tests (12.1), Component tests (12.2), Integration tests (12.3), A11y audit (12.4), Mobile testing (12.5), Performance baseline (12.6)
+  3. Chunk 13 (Deploy) is for when the human is ready to push to production
+  4. **NOTE:** home.tsx still uses old FeedDashboard — needs rewrite to use WirePanel + FilterSidebar + DashboardLayout (part of integrating the new shell)
+  5. **NOTE:** story.$id.tsx still uses old ConvergencePanel/ClaimsTracker — needs rewrite to use LensPanel
 
 ### What Works Right Now
 
 - **Framework:** React Router v7 (Remix) + Vite 7 + Tailwind v4
-- **Database:** Neon PostgreSQL, 8 models, 10 enums, 3 migrations applied
+- **Database:** Neon PostgreSQL, 11 models (8 original + DailyGCI, Workspace, SourceMonthlyStats), 10 enums, 3 migrations applied
 - **Sources:** 55 outlets across 7 bias tiers and 7 global regions
-- **Pipeline:** /api/ingest → /api/cluster → /api/analyze (all working)
+- **Pipeline:** /api/ingest → /api/cluster → /api/analyze → /api/gci (all working)
 - **AI:** Multi-provider system (Claude primary, Gemini/DeepSeek/Grok available)
-- **Feed UI:** Homepage with real stories, StoryCard, filters, skeleton loading
-- **Story Detail:** ConvergencePanel, ClaimsTracker, PrimarySourceList
-- **Search:** /api/search with DB text search, SearchBar, SearchResults
-- **Auth:** Cookie sessions, magic link, Founder detection, session-aware Header
+- **App Shell:** TopBar (48px, Ctrl+K search), Sidebar (56/240px collapsed), StatusBar (28px), BottomTabBar (56px mobile), AppShell (CSS Grid), DashboardLayout (Wire|Lens|Dossier)
+- **Filter System:** FilterProvider + URL codec, BiasSpectrumSelector (7-segment), RegionFilter, ConvergenceSlider, TimeHorizon, TopicCloud, SmartPresets (7 lenses), FilterChips, FilterSidebar (320px), MobileFilterSheet
+- **Wire (Feed):** StoryListRow (compact, mini gauge, bias bar, j/k nav), WirePanel (tier headers), WireSkeleton, TodaysSurprise
+- **Lens (Story Detail):** LensPanel (4 tabs), SpectrumPanel (7-column), ClaimsPanel (convergence meters, supports/contradicts), ConvergenceExplainer, PrimaryDocsPanel
+- **Data Viz:** ConvergenceGauge (SVG arc, 3 sizes), BiasSpectrumBar (3 modes), RegionIndicator, ClaimMatrix (truth table), TimelineStrip, GCIGauge, GCITicker, GCI computation
+- **Feature Gating:** capabilities.ts, Gate component, UpgradeTeaser, tier→capability map
+- **State:** Zustand workspace store with localStorage persist + debounced server sync
+- **A11y:** Skip links, aria-labels, aria-expanded, reduced-motion, forced-colors, F6 panel cycling
+- **Auth:** Cookie sessions, magic link, Founder detection, session-aware TopBar
 - **Payments:** Stripe checkout, webhook handler, 3-tier pricing page
-- **Testing:** 37 unit tests (convergence scoring, trust signals) — vitest broken (path alias)
+- **Testing:** 37 unit tests passing (convergence scoring, trust signals)
+- **New deps installed:** cmdk, fuse.js, tinykeys, react-resizable-panels, sonner, zustand, @react-pdf/renderer, satori
 
 ### What's Broken Right Now
 
