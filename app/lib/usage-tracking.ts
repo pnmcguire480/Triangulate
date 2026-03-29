@@ -49,16 +49,6 @@ export function getTodayUsage(cookieHeader: string | null): { storiesViewed: num
 }
 
 /**
- * Generate Set-Cookie header for incremented usage.
- */
-export function incrementUsageCookie(): string {
-  const today = new Date().toISOString().slice(0, 10);
-  // The actual increment happens client-side; this just creates the cookie structure
-  const value = encodeURIComponent(JSON.stringify({ date: today, stories: 1 }));
-  return `${COOKIE_NAME}=${value}; Path=/; SameSite=Lax; Max-Age=86400`;
-}
-
-/**
  * Create a Set-Cookie header with updated story count.
  */
 export function setUsageCookie(stories: number): string {

@@ -82,13 +82,13 @@ export async function computeGCI(): Promise<GCIComponents> {
 
   // Final score: breadth (40%) + depth (35%) - contestation (25%)
   const rawScore = breadth * 0.4 + depth * 0.35 - contestation * 0.25;
-  const score = Math.round(Math.max(0, Math.min(1, rawScore)) * 100);
+  const score = Math.max(0, Math.min(1, rawScore));
 
   return {
-    score,
-    breadth: Math.round(breadth * 100),
-    depth: Math.round(depth * 100),
-    contestation: Math.round(contestation * 100),
+    score: Math.round(score * 1000) / 1000,
+    breadth: Math.round(breadth * 1000) / 1000,
+    depth: Math.round(depth * 1000) / 1000,
+    contestation: Math.round(contestation * 1000) / 1000,
     storyCount: multiSource.length,
   };
 }

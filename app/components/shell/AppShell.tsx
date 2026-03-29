@@ -13,7 +13,7 @@ import BottomTabBar from "./BottomTabBar";
 import CommandPalette from "./CommandPalette";
 import ShortcutOverlay from "./ShortcutOverlay";
 import NotificationToast from "./NotificationToast";
-import { DensityProvider } from "~/lib/DensityProvider";
+import { useWorkspaceDensitySync } from "~/lib/DensityProvider";
 import { useWorkspaceStore } from "~/lib/stores/workspace";
 import { useKeymap } from "~/lib/hooks/useKeymap";
 
@@ -73,12 +73,14 @@ export default function AppShell({ user }: AppShellProps) {
     onResetFilters: handleResetFilters,
   });
 
+  // Sync data-density attribute to <html>
+  useWorkspaceDensitySync();
+
   const sidebarWidth = sidebarExpanded
     ? "var(--shell-sidebar-expanded)"
     : "var(--shell-sidebar-collapsed)";
 
   return (
-    <DensityProvider>
       <div
         className="app-shell"
         style={{ "--sidebar-width": sidebarWidth } as React.CSSProperties}
@@ -114,6 +116,5 @@ export default function AppShell({ user }: AppShellProps) {
         <ShortcutOverlay open={shortcutOverlayOpen} onClose={() => setShortcutOverlayOpen(false)} />
         <NotificationToast />
       </div>
-    </DensityProvider>
   );
 }

@@ -30,7 +30,12 @@ export async function action({ request }: { request: Request }) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json();
+  let body: { name?: string; state?: unknown };
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: 'Invalid request body' }, { status: 400 });
+  }
   const { name = 'Default', state } = body;
 
   if (!state) {

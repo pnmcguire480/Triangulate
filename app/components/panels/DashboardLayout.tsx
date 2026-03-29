@@ -108,9 +108,15 @@ export default function DashboardLayout({
         )}
       </div>
 
-      {/* Mobile: single panel with bottom sheet potential */}
+      {/* Mobile: wire + lens slide-up */}
       <div className="md:hidden flex flex-col h-full overflow-hidden">
-        {wire}
+        {lens ? (
+          <>
+            <div className="flex-1 overflow-auto">{lens}</div>
+          </>
+        ) : (
+          wire
+        )}
       </div>
     </>
   );

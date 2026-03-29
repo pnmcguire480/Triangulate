@@ -21,8 +21,13 @@ export async function action({ request }: { request: Request }) {
     return Response.json({ error: 'Premium subscription required' }, { status: 403 });
   }
 
-  const body = await request.json();
-  const query = body.query?.trim();
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+  const query = (body.query as string)?.trim();
 
   if (!query || query.length < 3) {
     return Response.json({ error: 'Query must be at least 3 characters' }, { status: 400 });

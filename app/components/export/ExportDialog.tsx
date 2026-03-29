@@ -38,32 +38,32 @@ const FORMAT_OPTIONS: { value: ExportFormat; label: string; icon: React.ElementT
 
 export default function ExportDialog({ open, onClose, data }: ExportDialogProps) {
   const [format, setFormat] = useState<ExportFormat>('csv');
-  const [includeOptions, setIncludeOptions] = useState({
-    stories: true,
-    claims: true,
-    sources: true,
-    metadata: true,
-  });
+  const [exportError, setExportError] = useState<string | null>(null);
 
   if (!open) return null;
 
-  function handleExport() {
+  async function handleExport() {
+    setExportError(null);
     const timestamp = new Date().toISOString().slice(0, 10);
     const filename = `triangulate-export-${timestamp}`;
 
-    if (format === 'csv') {
-      const csv = storiesToCsv(data.stories);
-      downloadCsv(csv, `${filename}.csv`);
-    } else if (format === 'json') {
-      const json = storiesToJson(data.stories);
-      downloadJson(json, `${filename}.json`);
-    } else if (format === 'pdf') {
-      // PDF export deferred — requires @react-pdf/renderer rendering
-      // TODO: Implement PDF rendering pipeline
-      alert('PDF export coming soon');
+    try {
+      if (format === 'csv') {
+        const csv = storiesToCsv(data.stories);
+        downloadCsv(csv, `${filename}.csv`);
+      } else if (format === 'json') {
+        const json = storiesToJson(data.stories);
+        downloadJson(json, `${filename}.json`);
+      } else if (format === 'pdf') {
+        const { generatePdfBuffer, downloadPdf } = await import('~/lib/export/pdf');
+        const buffer = await generatePdfBuffer(data.stories);
+        downloadPdf(buffer.buffer as ArrayBuffer, `${filename}.pdf`);
+      }
+      onClose();
+    } catch (err) {
+      console.error('Export failed:', err);
+      setExportError('Export failed. Please try another format.');
     }
-
-    onClose();
   }
 
   return (
@@ -100,27 +100,10 @@ export default function ExportDialog({ open, onClose, data }: ExportDialogProps)
             </p>
           </div>
 
-          {/* Include options */}
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint mb-2">
-              Include
-            </p>
-            <div className="space-y-2">
-              {Object.entries(includeOptions).map(([key, checked]) => (
-                <label key={key} className="flex items-center gap-2 text-sm text-ink cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={(e) =>
-                      setIncludeOptions({ ...includeOptions, [key]: e.target.checked })
-                    }
-                    className="rounded border-border accent-brand-green"
-                  />
-                  <span className="capitalize">{key}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+          {/* Error message */}
+          {exportError && (
+            <p className="text-sm text-brand-red">{exportError}</p>
+          )}
 
           {/* Format selection */}
           <div>

@@ -3,6 +3,8 @@
 // Auto-generated prose for converged stories
 // ============================================================
 
+import { BIAS_TIER_POSITION } from "./convergence";
+
 interface NarrativeInput {
   convergenceScore: number;
   biasTiers: string[];
@@ -26,7 +28,7 @@ export function generateConvergenceNarrative(input: NarrativeInput): string {
   const parts: string[] = [];
 
   // Find the ideological extremes
-  const tierOrder = ['FAR_LEFT', 'LEFT', 'CENTER_LEFT', 'CENTER', 'CENTER_RIGHT', 'RIGHT', 'FAR_RIGHT'];
+  const tierOrder = Object.keys(BIAS_TIER_POSITION);
   const sortedTiers = biasTiers.sort((a, b) => tierOrder.indexOf(a) - tierOrder.indexOf(b));
   const widestLeft = sortedTiers[0];
   const widestRight = sortedTiers[sortedTiers.length - 1];

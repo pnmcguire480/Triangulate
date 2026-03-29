@@ -20,10 +20,7 @@ interface DisagreementResult {
   narrative: string;
 }
 
-const TIER_POSITION: Record<string, number> = {
-  FAR_LEFT: 0, LEFT: 1, CENTER_LEFT: 2, CENTER: 3,
-  CENTER_RIGHT: 4, RIGHT: 5, FAR_RIGHT: 6,
-};
+import { BIAS_TIER_POSITION as TIER_POSITION } from "./convergence";
 
 /**
  * Classify a disputed claim's disagreement pattern.

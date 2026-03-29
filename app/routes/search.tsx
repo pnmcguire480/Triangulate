@@ -39,6 +39,7 @@ export default function SearchPage() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   // Auto-search if query param present
   useEffect(() => {
@@ -59,9 +60,16 @@ export default function SearchPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: searchQuery }),
       });
-      const data = await res.json();
-      setResults(data.results || []);
+      if (!res.ok) {
+        setSearchError('Search failed. Please try again.');
+        setResults([]);
+      } else {
+        const data = await res.json();
+        setResults(data.results || []);
+        setSearchError(null);
+      }
     } catch {
+      setSearchError('Search unavailable. Please try again later.');
       setResults([]);
     } finally {
       setIsSearching(false);
@@ -182,8 +190,15 @@ export default function SearchPage() {
           </button>
         ))}
 
+        {/* Error state */}
+        {searchError && !isSearching && (
+          <div className="text-center py-12 border border-brand-red/20 rounded-sm bg-brand-red/5">
+            <p className="text-sm text-ink-muted">{searchError}</p>
+          </div>
+        )}
+
         {/* No results / triangulation offer */}
-        {hasSearched && !isSearching && results.length === 0 && (
+        {hasSearched && !isSearching && !searchError && results.length === 0 && (
           <div className="text-center py-12 border border-border rounded-sm bg-surface">
             <p className="text-sm text-ink-muted mb-4">
               No existing stories match &ldquo;{initialQuery || query}&rdquo;

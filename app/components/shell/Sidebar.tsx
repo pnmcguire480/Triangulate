@@ -6,12 +6,10 @@
 import { Link, useLocation } from "react-router";
 import {
   Newspaper,
-  Layers,
   Search,
   Database,
   Bookmark,
   CreditCard,
-  Settings,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -26,7 +24,6 @@ interface SidebarItem {
 
 const NAV_ITEMS: SidebarItem[] = [
   { icon: Newspaper, label: "Feed", to: "/" },
-  { icon: Layers, label: "Stories", to: "/stories" },
   { icon: Search, label: "Search", to: "/search" },
   { icon: Database, label: "Sources", to: "/sources" },
   { icon: Bookmark, label: "Watchlist", to: "/watchlist", disabled: true },
@@ -34,7 +31,6 @@ const NAV_ITEMS: SidebarItem[] = [
 
 const BOTTOM_ITEMS: SidebarItem[] = [
   { icon: CreditCard, label: "Pricing", to: "/pricing" },
-  { icon: Settings, label: "Settings", to: "/settings" },
 ];
 
 export default function Sidebar() {

@@ -24,6 +24,7 @@ interface TopBarProps {
 
 export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalette }: TopBarProps) {
   const [searchOpen, setSearchOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -105,19 +106,44 @@ export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalet
 
         <ThemeToggle isDark={isDark} onToggle={onToggleTheme} />
 
-        {/* User info */}
+        {/* User info + logout */}
         {user && (
-          <div className="hidden sm:flex items-center gap-1.5">
-            <div className="w-7 h-7 rounded-full bg-brand-green/10 flex items-center justify-center text-xs font-semibold text-brand-green">
-              {user.isFounder ? (
-                <Crown className="w-3.5 h-3.5" aria-label="Founder" />
-              ) : (
-                <User className="w-3.5 h-3.5" aria-hidden="true" />
-              )}
-            </div>
-            <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 bg-ink/5 rounded-sm text-ink-muted">
-              {user.tier}
-            </span>
+          <div className="hidden sm:flex items-center gap-1.5 relative">
+            <button
+              onClick={() => setUserMenuOpen((v) => !v)}
+              className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+              aria-label="User menu"
+              aria-expanded={userMenuOpen}
+            >
+              <div className="w-7 h-7 rounded-full bg-brand-green/10 flex items-center justify-center text-xs font-semibold text-brand-green">
+                {user.isFounder ? (
+                  <Crown className="w-3.5 h-3.5" aria-label="Founder" />
+                ) : (
+                  <User className="w-3.5 h-3.5" aria-hidden="true" />
+                )}
+              </div>
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 bg-ink/5 rounded-sm text-ink-muted">
+                {user.tier}
+              </span>
+            </button>
+            {userMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} aria-hidden="true" />
+                <div className="absolute top-full right-0 mt-1 w-44 bg-surface border border-border rounded-sm shadow-lg z-50">
+                  <div className="px-3 py-2 border-b border-border">
+                    <p className="text-xs text-ink-muted truncate">{user.email}</p>
+                  </div>
+                  <form method="post" action="/api/auth/logout">
+                    <button
+                      type="submit"
+                      className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-ink/[0.04] transition-colors"
+                    >
+                      Sign out
+                    </button>
+                  </form>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>

@@ -3,8 +3,9 @@
 // tinykeys for vim-style sequential shortcuts
 // ============================================================
 
-import { useEffect } from 'react';
-import { tinykeys } from 'tinykeys';
+import { useEffect, useRef } from 'react';
+import * as tinykeysMod from 'tinykeys';
+const tinykeys = (tinykeysMod as any).tinykeys || (tinykeysMod as any).default;
 
 /**
  * Global keyboard shortcut map.
@@ -38,6 +39,10 @@ interface UseKeymapOptions {
 }
 
 export function useKeymap(opts: UseKeymapOptions) {
+  // Use a ref to avoid re-registering shortcuts when callbacks change
+  const optsRef = useRef(opts);
+  optsRef.current = opts;
+
   useEffect(() => {
     const guard = (fn: () => void) => (e: KeyboardEvent) => {
       if (isTyping()) return;
@@ -47,35 +52,35 @@ export function useKeymap(opts: UseKeymapOptions) {
 
     const unsub = tinykeys(window, {
       // Navigation: g then letter
-      'g f': guard(() => opts.onNavigate?.('/')),
-      'g s': guard(() => opts.onNavigate?.('/search')),
-      'g o': guard(() => opts.onNavigate?.('/sources')),
-      'g t': guard(() => opts.onNavigate?.('/trends')),
-      'g p': guard(() => opts.onNavigate?.('/pricing')),
+      'g f': guard(() => optsRef.current.onNavigate?.('/')),
+      'g s': guard(() => optsRef.current.onNavigate?.('/search')),
+      'g o': guard(() => optsRef.current.onNavigate?.('/sources')),
+      'g t': guard(() => optsRef.current.onNavigate?.('/trends')),
+      'g p': guard(() => optsRef.current.onNavigate?.('/pricing')),
 
       // Command palette
-      '$mod+k': (e: KeyboardEvent) => { e.preventDefault(); opts.onCommandPalette?.(); },
-      '$mod+Shift+p': (e: KeyboardEvent) => { e.preventDefault(); opts.onCommandPalette?.(); },
+      '$mod+k': (e: KeyboardEvent) => { e.preventDefault(); optsRef.current.onCommandPalette?.(); },
+      '$mod+Shift+p': (e: KeyboardEvent) => { e.preventDefault(); optsRef.current.onCommandPalette?.(); },
 
       // Sidebar
-      '$mod+b': (e: KeyboardEvent) => { e.preventDefault(); opts.onToggleSidebar?.(); },
+      '$mod+b': (e: KeyboardEvent) => { e.preventDefault(); optsRef.current.onToggleSidebar?.(); },
 
       // Help
-      '?': guard(() => opts.onShortcutHelp?.()),
+      '?': guard(() => optsRef.current.onShortcutHelp?.()),
 
       // Filter reset
-      'f r': guard(() => opts.onResetFilters?.()),
+      'f r': guard(() => optsRef.current.onResetFilters?.()),
 
       // Story navigation
-      'j': guard(() => opts.onNextStory?.()),
-      'k': guard(() => opts.onPrevStory?.()),
+      'j': guard(() => optsRef.current.onNextStory?.()),
+      'k': guard(() => optsRef.current.onPrevStory?.()),
 
       // Panel focus (F6 already handled by usePanelFocus)
-      '1': guard(() => opts.onFocusPanel?.('wire')),
-      '2': guard(() => opts.onFocusPanel?.('lens')),
-      '3': guard(() => opts.onFocusPanel?.('dossier')),
+      '1': guard(() => optsRef.current.onFocusPanel?.('wire')),
+      '2': guard(() => optsRef.current.onFocusPanel?.('lens')),
+      '3': guard(() => optsRef.current.onFocusPanel?.('dossier')),
     });
 
     return unsub;
-  }, [opts]);
+  }, []); // Register once, use ref for current callbacks
 }

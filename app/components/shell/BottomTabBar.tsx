@@ -6,9 +6,9 @@
 import { Link, useLocation } from "react-router";
 import {
   Newspaper,
-  Layers,
   Search,
   Database,
+  TrendingUp,
   MoreHorizontal,
 } from "lucide-react";
 import { useState } from "react";
@@ -21,9 +21,9 @@ interface TabItem {
 
 const TABS: TabItem[] = [
   { icon: Newspaper, label: "Feed", to: "/" },
-  { icon: Layers, label: "Stories", to: "/stories" },
   { icon: Search, label: "Search", to: "/search" },
   { icon: Database, label: "Sources", to: "/sources" },
+  { icon: TrendingUp, label: "Trends", to: "/trends" },
 ];
 
 export default function BottomTabBar() {
@@ -84,25 +84,11 @@ export default function BottomTabBar() {
             <div className="absolute bottom-full right-0 mb-2 w-48 bg-surface border border-border rounded-sm shadow-lg z-50">
               <div className="py-1">
                 <Link
-                  to="/watchlist"
-                  className="block px-4 py-2.5 text-sm text-ink-muted hover:bg-ink/[0.04] transition-colors"
-                  onClick={() => setMoreOpen(false)}
-                >
-                  Watchlist
-                </Link>
-                <Link
                   to="/pricing"
                   className="block px-4 py-2.5 text-sm text-ink-muted hover:bg-ink/[0.04] transition-colors"
                   onClick={() => setMoreOpen(false)}
                 >
                   Pricing
-                </Link>
-                <Link
-                  to="/settings"
-                  className="block px-4 py-2.5 text-sm text-ink-muted hover:bg-ink/[0.04] transition-colors"
-                  onClick={() => setMoreOpen(false)}
-                >
-                  Settings
                 </Link>
               </div>
             </div>

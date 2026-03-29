@@ -3,6 +3,7 @@
 // Updated with command-center features and daily cost comparison
 // ============================================================
 
+import { useState } from "react";
 import { Link, useLoaderData } from "react-router";
 import { Check, X, Crown, Zap, Coffee } from "lucide-react";
 import { cn } from "~/lib/utils";
@@ -92,12 +93,17 @@ const TIERS = [
 
 export default function Pricing({ loaderData }: Route.ComponentProps) {
   const { user } = loaderData;
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   async function handleCheckout(tier: string) {
     if (!user) {
       window.location.href = "/auth/signin";
       return;
     }
+
+    setCheckoutLoading(tier);
+    setCheckoutError(null);
 
     try {
       const res = await fetch("/api/stripe/checkout", {
@@ -108,9 +114,13 @@ export default function Pricing({ loaderData }: Route.ComponentProps) {
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
+      } else {
+        setCheckoutError(data.error || "Unable to start checkout. Please try again.");
+        setCheckoutLoading(null);
       }
     } catch {
-      // Handle error silently
+      setCheckoutError("Payment system unavailable. Please try again later.");
+      setCheckoutLoading(null);
     }
   }
 

@@ -6,10 +6,21 @@
 import type { Route } from "./+types/api.gci";
 import { prisma } from "~/lib/prisma";
 import { computeGCI } from "~/lib/gci";
+import { timingSafeEqual } from "crypto";
 
 export async function action({ request }: Route.ActionArgs) {
   if (request.method !== "POST") {
     return Response.json({ error: "Method not allowed" }, { status: 405 });
+  }
+
+  // Auth guard — same pattern as ingest/cluster/analyze
+  if (!process.env.CRON_SECRET) {
+    return Response.json({ error: "CRON_SECRET not configured" }, { status: 500 });
+  }
+  const secret = request.headers.get("x-cron-secret") || "";
+  const expected = process.env.CRON_SECRET || "";
+  if (!secret || secret.length !== expected.length || !timingSafeEqual(Buffer.from(secret), Buffer.from(expected))) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const gci = await computeGCI();

@@ -7,6 +7,7 @@ import {
 import { calculateConvergenceScore, isContested } from "~/lib/convergence";
 import { calculateTrustSignal } from "~/lib/signals";
 import { computeSourceMonthlyStats } from "~/lib/source-stats";
+import { timingSafeEqual } from "crypto";
 
 const BATCH_SIZE = 20;
 
@@ -14,8 +15,9 @@ export async function loader({ request }: { request: Request }) {
   if (!process.env.CRON_SECRET) {
     return Response.json({ error: "CRON_SECRET not configured" }, { status: 500 });
   }
-  const cronSecret = request.headers.get("x-cron-secret");
-  if (!cronSecret || cronSecret !== process.env.CRON_SECRET) {
+  const cronSecret = request.headers.get("x-cron-secret") || "";
+  const expectedSecret = process.env.CRON_SECRET || "";
+  if (!cronSecret || cronSecret.length !== expectedSecret.length || !timingSafeEqual(Buffer.from(cronSecret), Buffer.from(expectedSecret))) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -94,9 +96,13 @@ export async function loader({ request }: { request: Request }) {
           const supportFlags = claim.sources.map((s) => s.supports);
           const contested = isContested(supportFlags);
 
+          // Contested claims get a weighted score, not a binary 0
+          const supportingCount = supportFlags.filter((s) => s).length;
+          const totalCount = supportFlags.length;
+          const rawScore = calculateConvergenceScore(tiers, regions);
           const convergenceScore = contested
-            ? 0
-            : calculateConvergenceScore(tiers, regions);
+            ? Math.round(rawScore * (supportingCount / totalCount) * 100) / 100
+            : rawScore;
 
           const createdClaim = await prisma.claim.create({
             data: {
@@ -170,10 +176,7 @@ export async function loader({ request }: { request: Request }) {
         storiesAnalyzed++;
       } catch (err) {
         console.error(`Failed to analyze story ${story.id}:`, err);
-        await prisma.story.update({
-          where: { id: story.id },
-          data: { lastAnalyzedAt: new Date() },
-        });
+        // Do NOT set lastAnalyzedAt — leave null so story retries next cycle
       }
     }
 
@@ -199,6 +202,8 @@ export async function loader({ request }: { request: Request }) {
       claimsCreated,
       primaryDocsCreated,
       sourceStatsUpdated,
+    }, {
+      headers: { "Cache-Control": "no-store" },
     });
   } catch (err) {
     console.error("Analysis pipeline failed:", err);

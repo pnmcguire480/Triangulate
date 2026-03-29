@@ -8,12 +8,14 @@ import { Link, useLoaderData, useFetcher, useSearchParams } from 'react-router';
 import { format } from 'date-fns';
 import { prisma } from '~/lib/prisma';
 import { getUser } from '~/lib/auth';
-import { getTodayUsage, setUsageCookie, MAX_FREE_STORIES } from '~/lib/usage-tracking';
+import { getTodayUsage } from '~/lib/usage-tracking';
 import DashboardLayout from '~/components/panels/DashboardLayout';
 import WirePanel from '~/components/wire/WirePanel';
 import FilterSidebar from '~/components/filters/FilterSidebar';
 import LensPanel from '~/components/lens/LensPanel';
 import TodaysSurprise from '~/components/wire/TodaysSurprise';
+import { FilterProvider } from '~/lib/filters/FilterProvider';
+import MobileFilterSheet from '~/components/filters/MobileFilterSheet';
 import type { StoryListRowProps } from '~/components/wire/StoryListRow';
 
 export async function loader({ request }: { request: Request }) {
@@ -160,6 +162,7 @@ export default function Home() {
 
   // Logged-in: full command center
   return (
+    <FilterProvider>
     <div className="h-full flex">
       {/* Filter sidebar */}
       <div className="hidden md:block">
@@ -182,18 +185,10 @@ export default function Home() {
           </div>
         )}
 
-        {/* Free tier limit notice */}
-        {usage && usage.isLimited && (
-          <div className="px-3 py-2 border-b border-border bg-brand-amber/5">
-            <p className="text-xs text-ink-muted text-center">
-              Today&apos;s edition continues with {stories.length - MAX_FREE_STORIES} more stories.{' '}
-              <Link to="/pricing" className="text-brand-green font-medium hover:underline">
-                Upgrade to Premium
-              </Link>{' '}
-              to read the full edition.
-            </p>
-          </div>
-        )}
+        {/* Mobile filter sheet */}
+        <div className="md:hidden">
+          <MobileFilterSheet />
+        </div>
 
         <DashboardLayout
           wire={<WirePanel stories={wireStories} />}
@@ -205,6 +200,7 @@ export default function Home() {
         />
       </div>
     </div>
+    </FilterProvider>
   );
 }
 

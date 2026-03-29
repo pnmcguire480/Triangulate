@@ -3,7 +3,8 @@
 // Chunk 2: Database schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -116,6 +117,9 @@ model Story {
   claims          Claim[]
   primaryDocs     PrimaryDoc[]
 
+  @@index([createdAt])
+  @@index([lastAnalyzedAt])
+  @@index([trustSignal])
   @@map("stories")
 }
 

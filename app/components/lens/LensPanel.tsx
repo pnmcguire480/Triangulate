@@ -100,6 +100,24 @@ export default function LensPanel({ story: directStory, storyId }: LensPanelProp
     );
   }
 
+  const fetcherError = fetcher.state === 'idle' && storyId && !story && !isLoading;
+
+  if (fetcherError) {
+    return (
+      <PanelContainer title="The Lens" panelId="lens-panel" className="h-full">
+        <div className="flex flex-col items-center justify-center h-full py-16 text-center px-4">
+          <p className="text-sm text-ink-muted mb-2">Failed to load story analysis</p>
+          <button
+            onClick={() => fetcher.load(`/api/stories/${storyId}`)}
+            className="text-xs text-brand-green font-medium hover:underline"
+          >
+            Try again
+          </button>
+        </div>
+      </PanelContainer>
+    );
+  }
+
   if (isLoading || !story) {
     return (
       <PanelContainer title="The Lens" panelId="lens-panel" className="h-full">
