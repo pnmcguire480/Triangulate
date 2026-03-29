@@ -20,6 +20,7 @@ export default function StatusBar() {
     let mounted = true;
 
     async function fetchHealth() {
+      if (document.hidden) return;
       try {
         const res = await fetch('/api/health');
         if (res.ok && mounted) {
@@ -28,9 +29,18 @@ export default function StatusBar() {
       } catch { /* silent */ }
     }
 
+    function handleVisibilityChange() {
+      if (!document.hidden) fetchHealth();
+    }
+
     fetchHealth();
     const interval = setInterval(fetchHealth, 60_000);
-    return () => { mounted = false; clearInterval(interval); };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const statusColor =

@@ -6,7 +6,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { Command } from 'cmdk';
-import Fuse from 'fuse.js';
 import {
   Search, Newspaper, Layers, Database, CreditCard,
   Keyboard, Download, Moon, Sun, Monitor,
@@ -62,9 +61,9 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
     { id: 'display-compact', label: 'Density: Compact', icon: Layers, category: 'Display', action: () => { setDensity('compact'); close(); } },
     { id: 'display-comfortable', label: 'Density: Comfortable', icon: Layers, category: 'Display', action: () => { setDensity('comfortable'); close(); } },
     { id: 'display-spacious', label: 'Density: Spacious', icon: Layers, category: 'Display', action: () => { setDensity('spacious'); close(); } },
-    { id: 'display-theme-dark', label: 'Theme: Dark', icon: Moon, category: 'Display', action: () => { document.documentElement.classList.add('dark'); localStorage.setItem('triangulate-theme', 'dark'); close(); } },
-    { id: 'display-theme-light', label: 'Theme: Light', icon: Sun, category: 'Display', action: () => { document.documentElement.classList.remove('dark'); localStorage.setItem('triangulate-theme', 'light'); close(); } },
-    { id: 'display-theme-system', label: 'Theme: System', icon: Monitor, category: 'Display', action: () => { localStorage.removeItem('triangulate-theme'); close(); } },
+    { id: 'display-theme-dark', label: 'Theme: Dark', icon: Moon, category: 'Display', action: () => { document.documentElement.classList.add('dark'); localStorage.setItem('triangulate-theme', 'dark'); window.dispatchEvent(new StorageEvent('storage', { key: 'triangulate-theme' })); close(); } },
+    { id: 'display-theme-light', label: 'Theme: Light', icon: Sun, category: 'Display', action: () => { document.documentElement.classList.remove('dark'); localStorage.setItem('triangulate-theme', 'light'); window.dispatchEvent(new StorageEvent('storage', { key: 'triangulate-theme' })); close(); } },
+    { id: 'display-theme-system', label: 'Theme: System', icon: Monitor, category: 'Display', action: () => { localStorage.removeItem('triangulate-theme'); window.dispatchEvent(new StorageEvent('storage', { key: 'triangulate-theme' })); close(); } },
 
     // Filters
     { id: 'filter-reset', label: 'Reset All Filters', shortcut: 'F R', icon: RotateCcw, category: 'Filters', action: () => { navigate(location.pathname); close(); } },

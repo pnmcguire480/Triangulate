@@ -79,7 +79,7 @@ export default function SpectrumPanel({ articles }: SpectrumPanelProps) {
           >
             {/* Column header */}
             <div
-              className="px-1 py-1 text-center text-[9px] font-semibold text-white rounded-t-sm"
+              className="px-1 py-1 text-center text-[11px] font-semibold text-white rounded-t-sm"
               style={{ backgroundColor: TIER_COLORS[tier] }}
             >
               {TIER_LABELS[tier]}
@@ -88,7 +88,7 @@ export default function SpectrumPanel({ articles }: SpectrumPanelProps) {
             {/* Articles */}
             <div className="flex-1 border border-border border-t-0 rounded-b-sm overflow-y-auto max-h-64">
               {grouped[tier].length === 0 ? (
-                <div className="p-2 text-center text-[10px] text-ink-faint">
+                <div className="p-2 text-center text-[11px] text-ink-faint">
                   No coverage
                 </div>
               ) : (
@@ -100,10 +100,10 @@ export default function SpectrumPanel({ articles }: SpectrumPanelProps) {
                     rel="noopener noreferrer"
                     className="block px-1.5 py-1.5 border-b border-border last:border-0 hover:bg-ink/[0.02] transition-colors"
                   >
-                    <p className="text-[10px] font-medium text-ink">
+                    <p className="text-[11px] font-medium text-ink">
                       {article.source.name}
                     </p>
-                    <p className="text-[9px] text-ink-muted line-clamp-2 mt-0.5">
+                    <p className="text-[11px] text-ink-muted line-clamp-2 mt-0.5">
                       {article.title}
                     </p>
                   </a>

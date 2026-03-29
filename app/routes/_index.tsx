@@ -4,7 +4,7 @@
 // Logged out: Condensed landing + live Wire preview
 // ============================================================
 
-import { Link, useLoaderData, useFetcher, useSearchParams } from 'react-router';
+import { Link, useLoaderData, useFetcher, useSearchParams, useNavigate } from 'react-router';
 import { format } from 'date-fns';
 import { prisma } from '~/lib/prisma';
 import { getUser } from '~/lib/auth';
@@ -16,6 +16,7 @@ import LensPanel from '~/components/lens/LensPanel';
 import TodaysSurprise from '~/components/wire/TodaysSurprise';
 import { FilterProvider } from '~/lib/filters/FilterProvider';
 import MobileFilterSheet from '~/components/filters/MobileFilterSheet';
+import Footer from '~/components/layout/Footer';
 import type { StoryListRowProps } from '~/components/wire/StoryListRow';
 
 export async function loader({ request }: { request: Request }) {
@@ -57,7 +58,7 @@ export async function loader({ request }: { request: Request }) {
       _count: { select: { articles: true, claims: true, primaryDocs: true } },
     },
     orderBy: { createdAt: 'desc' },
-    take: 200,
+    take: user ? 60 : 10,
   });
 
   // Transform to StoryListRowProps shape
@@ -214,6 +215,7 @@ function LoggedOutLanding({
   surprise: { id: string; title: string; convergenceScore: number; sourceNames: string[]; claimCount: number } | null;
 }) {
   const today = format(new Date(), 'EEEE, MMMM d, yyyy');
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen">
@@ -272,6 +274,7 @@ function LoggedOutLanding({
             factCount={surprise.claimCount || 0}
             topic={surprise.title.split(' ').slice(0, 4).join(' ')}
             convergencePct={Math.round(surprise.convergenceScore * 100)}
+            onClick={() => navigate('/auth/signin')}
           />
         </div>
       )}
@@ -295,6 +298,9 @@ function LoggedOutLanding({
           )}
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

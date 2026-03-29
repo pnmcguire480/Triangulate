@@ -110,6 +110,7 @@ export default function LensPanel({ story: directStory, storyId }: LensPanelProp
           <button
             onClick={() => fetcher.load(`/api/stories/${storyId}`)}
             className="text-xs text-brand-green font-medium hover:underline"
+            aria-label="Retry loading story"
           >
             Try again
           </button>

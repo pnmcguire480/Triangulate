@@ -95,8 +95,10 @@ export default function PanelContainer({
             {tabs.map((tab) => (
               <button
                 key={tab.id}
+                id={`tab-${tab.id}`}
                 role="tab"
                 aria-selected={activeTab === tab.id}
+                aria-controls={`tabpanel-${tab.id}`}
                 onClick={() => onTabChange?.(tab.id)}
                 className={`px-2 py-1 text-[11px] font-medium rounded-sm transition-colors ${
                   activeTab === tab.id
@@ -120,7 +122,12 @@ export default function PanelContainer({
 
       {/* Body — flex-1, scrollable */}
       {!collapsed && (
-        <div className="flex-1 overflow-y-auto scrollbar-thin" role="tabpanel">
+        <div
+          className="flex-1 overflow-y-auto scrollbar-thin"
+          role={tabs?.length ? "tabpanel" : undefined}
+          id={tabs?.length && activeTab ? `tabpanel-${activeTab}` : undefined}
+          aria-labelledby={tabs?.length && activeTab ? `tab-${activeTab}` : undefined}
+        >
           {children}
         </div>
       )}

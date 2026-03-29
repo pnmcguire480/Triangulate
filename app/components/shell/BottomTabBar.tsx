@@ -90,6 +90,19 @@ export default function BottomTabBar() {
                 >
                   Pricing
                 </Link>
+                <div
+                  className="block px-4 py-2.5 text-sm text-ink-faint/50 cursor-not-allowed"
+                >
+                  Watchlist (Coming Soon)
+                </div>
+                <div className="mx-3 border-t border-border" />
+                <Link
+                  to="/api/auth/logout"
+                  className="block px-4 py-2.5 text-sm text-ink-muted hover:bg-ink/[0.04] transition-colors"
+                  onClick={() => setMoreOpen(false)}
+                >
+                  Sign Out
+                </Link>
               </div>
             </div>
           </>

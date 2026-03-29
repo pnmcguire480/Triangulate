@@ -106,7 +106,7 @@ export default function ConvergenceSlider() {
           <button
             key={preset.label}
             onClick={() => applyPreset(preset.min, preset.max)}
-            className={`px-2 py-1 text-[10px] rounded-sm border transition-colors ${
+            className={`px-2 py-1 min-h-[44px] text-[10px] rounded-sm border transition-colors ${
               filters.convergenceMin === preset.min && filters.convergenceMax === preset.max
                 ? "border-brand-green text-brand-green bg-brand-green/5"
                 : "border-border text-ink-muted hover:border-border-strong"

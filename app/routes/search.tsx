@@ -116,6 +116,9 @@ export default function SearchPage() {
             {isSearching ? 'Searching...' : 'Search'}
           </button>
         </div>
+        {query.trim().length > 0 && query.trim().length < 3 && (
+          <p className="text-xs text-ink-muted mt-1">Enter at least 3 characters to search</p>
+        )}
       </form>
 
       {/* Results count */}
@@ -205,6 +208,7 @@ export default function SearchPage() {
             </p>
             <button
               disabled
+              title="Available for Premium and Journalist Pro subscribers"
               className="inline-flex items-center gap-2 px-4 py-2 bg-brand-green/10 text-brand-green rounded-sm text-sm font-medium opacity-60 cursor-not-allowed"
             >
               <Zap className="w-3.5 h-3.5" />

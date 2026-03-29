@@ -92,6 +92,12 @@ const BIAS_TIER_LABELS: Record<string, string> = {
   CENTER: 'Center', CENTER_RIGHT: 'Center-Right', RIGHT: 'Right', FAR_RIGHT: 'Far Right',
 };
 
+const REGION_LABELS: Record<string, string> = {
+  US: 'United States', UK: 'United Kingdom', EUROPE: 'Europe',
+  MIDDLE_EAST: 'Middle East', ASIA_PACIFIC: 'Asia-Pacific',
+  CANADA: 'Canada', GLOBAL: 'Global Wire Services',
+};
+
 const TRUST_SIGNAL_COLORS: Record<string, string> = {
   SINGLE_SOURCE: '#E76F51', CONTESTED: '#E9C46A', CONVERGED: '#2D6A4F',
   SOURCE_BACKED: '#264653', INSTITUTIONALLY_VALIDATED: '#6C63FF',
@@ -128,7 +134,7 @@ export default function SourceDetail() {
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm border border-border">
             {BIAS_TIER_LABELS[source.biasTier]}
           </span>
-          <span>{source.region}</span>
+          <span>{REGION_LABELS[source.region] || source.region}</span>
           <span>{source.articleCount} articles indexed</span>
           <a
             href={source.url}
@@ -168,19 +174,28 @@ export default function SourceDetail() {
           <h2 className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint mb-3">
             Monthly Confirmation Trend
           </h2>
-          <div className="flex items-end gap-1 h-20 bg-surface border border-border rounded-sm p-3">
-            {monthlyStats.slice().reverse().map((stat, i) => (
-              <div
-                key={i}
-                className="flex-1 rounded-t-sm transition-all"
-                style={{
-                  height: `${Math.max(stat.confirmationRate, 4)}%`,
-                  backgroundColor: stat.confirmationRate > 50 ? '#2D6A4F' : stat.confirmationRate > 25 ? '#E9C46A' : '#E76F51',
-                  opacity: 0.7 + (i / monthlyStats.length) * 0.3,
-                }}
-                title={`${new Date(stat.month).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}: ${stat.confirmationRate}%`}
-              />
-            ))}
+          <div className="bg-surface border border-border rounded-sm p-3">
+            <div className="flex items-end gap-1 h-20">
+              {monthlyStats.slice().reverse().map((stat, i) => (
+                <div
+                  key={i}
+                  className="flex-1 rounded-t-sm transition-all"
+                  style={{
+                    height: `${Math.max(stat.confirmationRate, 4)}%`,
+                    backgroundColor: stat.confirmationRate > 50 ? '#2D6A4F' : stat.confirmationRate > 25 ? '#E9C46A' : '#E76F51',
+                    opacity: 0.7 + (i / monthlyStats.length) * 0.3,
+                  }}
+                  title={`${new Date(stat.month).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}: ${stat.confirmationRate}%`}
+                />
+              ))}
+            </div>
+            <div className="flex gap-1 mt-1">
+              {monthlyStats.slice().reverse().map((stat, i) => (
+                <span key={i} className="flex-1 text-[8px] text-ink-faint text-center truncate">
+                  {new Date(stat.month).toLocaleDateString('en-US', { month: 'short' })}
+                </span>
+              ))}
+            </div>
           </div>
         </section>
       )}

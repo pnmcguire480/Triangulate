@@ -3,22 +3,27 @@
 // Compact 72-88px row for command-center Wire panel
 // ============================================================
 
+import { memo } from "react";
 import { formatDistanceToNow } from "date-fns";
 import type { BiasTier, Region, TrustSignal } from "@prisma/client";
 import { TRUST_SIGNAL_CONFIG } from "~/types";
+import { cn } from "~/lib/utils";
 
-// Bias tier colors for the inline spectrum bar
-const BIAS_TIER_COLORS: Record<BiasTier, string> = {
-  FAR_LEFT: "var(--color-bias-far-left)",
-  LEFT: "var(--color-bias-left)",
-  CENTER_LEFT: "var(--color-bias-center-left)",
-  CENTER: "var(--color-bias-center)",
-  CENTER_RIGHT: "var(--color-bias-center-right)",
-  RIGHT: "var(--color-bias-right)",
-  FAR_RIGHT: "var(--color-bias-far-right)",
-};
-
-const ALL_TIERS: BiasTier[] = ["FAR_LEFT", "LEFT", "CENTER_LEFT", "CENTER", "CENTER_RIGHT", "RIGHT", "FAR_RIGHT"];
+// Build a CSS gradient from active bias tiers (Fix 48: single div instead of 7)
+function buildSpectrumGradient(tiers: string[]): string {
+  const tierColors: Record<string, string> = {
+    FAR_LEFT: '#1a5276', LEFT: '#2980b9', CENTER_LEFT: '#5dade2',
+    CENTER: '#7f8c8d', CENTER_RIGHT: '#e67e22', RIGHT: '#e74c3c', FAR_RIGHT: '#922b21',
+  };
+  if (!tiers.length) return 'transparent';
+  const segments = tiers.map((t, i) => {
+    const color = tierColors[t] || '#7f8c8d';
+    const start = (i / tiers.length) * 100;
+    const end = ((i + 1) / tiers.length) * 100;
+    return `${color} ${start}% ${end}%`;
+  });
+  return `linear-gradient(to right, ${segments.join(', ')})`;
+}
 
 export interface StoryListRowProps {
   id: string;
@@ -33,10 +38,12 @@ export interface StoryListRowProps {
   createdAt: string;
   isSelected?: boolean;
   isNew?: boolean;
+  convergenceDelta?: number | null;
+  convergenceDirection?: 'rising' | 'falling' | 'stable' | null;
   onClick?: () => void;
 }
 
-export default function StoryListRow({
+function StoryListRow({
   id,
   title,
   trustSignal,
@@ -49,6 +56,8 @@ export default function StoryListRow({
   createdAt,
   isSelected = false,
   isNew = false,
+  convergenceDelta,
+  convergenceDirection,
   onClick,
 }: StoryListRowProps) {
   const signalConfig = TRUST_SIGNAL_CONFIG[trustSignal];
@@ -57,13 +66,13 @@ export default function StoryListRow({
 
   return (
     <article
-      className={`relative flex items-center gap-3 px-3 py-2 border-b border-border cursor-pointer transition-colors hover:bg-ink/[0.02] ${
-        isSelected ? "bg-brand-green/[0.04] border-l-[3px] border-l-brand-green" : ""
-      }`}
+      className={cn(
+        "relative flex items-center gap-3 px-3 py-2 border-b border-border cursor-pointer transition-colors hover:bg-ink/[0.04]",
+        isSelected && "bg-brand-green/[0.04] border-l-[3px] border-l-brand-green"
+      )}
       style={{ minHeight: "var(--density-row-height, 72px)" }}
       onClick={onClick}
       tabIndex={0}
-      role="article"
       aria-label={`${title}. ${convergencePct}% convergence. ${articleCount} sources.`}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -146,8 +155,8 @@ export default function StoryListRow({
         </div>
       </div>
 
-      {/* Right: Score + time */}
-      <div className="shrink-0 text-right">
+      {/* Right: Score + time (hidden on mobile to avoid triple convergence) */}
+      <div className="hidden md:block shrink-0 text-right">
         <div
           className="text-lg font-mono font-semibold"
           style={{
@@ -161,24 +170,28 @@ export default function StoryListRow({
         >
           {convergencePct}
         </div>
+        {convergenceDelta != null && convergenceDirection && convergenceDirection !== 'stable' && (
+          <div
+            className="text-[9px] font-mono"
+            style={{
+              color: convergenceDirection === 'rising'
+                ? "var(--color-brand-green)"
+                : "var(--color-brand-red)",
+            }}
+          >
+            {convergenceDirection === 'rising' ? '▲' : '▼'} {Math.abs(convergenceDelta)}%
+          </div>
+        )}
         <div className="text-[10px] text-ink-faint">{timeAgo}</div>
       </div>
 
-      {/* Bottom: Inline bias spectrum bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-0.5 flex">
-        {ALL_TIERS.map((tier) => (
-          <div
-            key={tier}
-            className="flex-1"
-            style={{
-              backgroundColor: biasTiers.includes(tier)
-                ? BIAS_TIER_COLORS[tier]
-                : "transparent",
-              opacity: biasTiers.includes(tier) ? 1 : 0.1,
-            }}
-          />
-        ))}
-      </div>
+      {/* Bottom: Inline bias spectrum bar (single gradient div) */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+        style={{ background: buildSpectrumGradient(biasTiers) }}
+      />
     </article>
   );
 }
+
+export default memo(StoryListRow);

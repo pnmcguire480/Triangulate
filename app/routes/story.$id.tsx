@@ -174,7 +174,7 @@ export default function StoryView({ loaderData }: Route.ComponentProps) {
       </header>
 
       {/* Lens Panel — tabbed detail view */}
-      <LensPanel storyId={story.id} />
+      <LensPanel story={story} />
 
       {/* Footer */}
       <div className="mt-10 pt-6 border-t border-border">

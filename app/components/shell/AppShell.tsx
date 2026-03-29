@@ -4,15 +4,16 @@
 // + CommandPalette, ShortcutOverlay, Notifications, Density
 // ============================================================
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
 import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
 import StatusBar from "./StatusBar";
 import BottomTabBar from "./BottomTabBar";
-import CommandPalette from "./CommandPalette";
-import ShortcutOverlay from "./ShortcutOverlay";
-import NotificationToast from "./NotificationToast";
+
+const CommandPalette = lazy(() => import("./CommandPalette"));
+const ShortcutOverlay = lazy(() => import("./ShortcutOverlay"));
+const NotificationToast = lazy(() => import("./NotificationToast"));
 import { useWorkspaceDensitySync } from "~/lib/DensityProvider";
 import { useWorkspaceStore } from "~/lib/stores/workspace";
 import { useKeymap } from "~/lib/hooks/useKeymap";
@@ -29,7 +30,11 @@ interface AppShellProps {
 }
 
 export default function AppShell({ user }: AppShellProps) {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== 'undefined'
+      ? document.documentElement.classList.contains('dark')
+      : false
+  );
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [shortcutOverlayOpen, setShortcutOverlayOpen] = useState(false);
   const sidebarExpanded = useWorkspaceStore((s) => s.sidebarExpanded);
@@ -37,9 +42,15 @@ export default function AppShell({ user }: AppShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Sync with actual DOM state on mount
+  // Listen for theme changes from CommandPalette
   useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
+    function handleStorage(e: StorageEvent) {
+      if (e.key === 'triangulate-theme') {
+        setIsDark(document.documentElement.classList.contains('dark'));
+      }
+    }
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   // Listen for custom shortcut overlay event (from CommandPalette)
@@ -100,8 +111,8 @@ export default function AppShell({ user }: AppShellProps) {
         <main
           id="main-content"
           className="app-shell-content scrollbar-thin"
-          role="main"
         >
+          <h1 className="sr-only">Triangulate — News Convergence Feed</h1>
           <Outlet />
         </main>
 
@@ -112,9 +123,15 @@ export default function AppShell({ user }: AppShellProps) {
         <BottomTabBar />
 
         {/* Overlays */}
-        <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
-        <ShortcutOverlay open={shortcutOverlayOpen} onClose={() => setShortcutOverlayOpen(false)} />
-        <NotificationToast />
+        <Suspense fallback={null}>
+          <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <ShortcutOverlay open={shortcutOverlayOpen} onClose={() => setShortcutOverlayOpen(false)} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <NotificationToast />
+        </Suspense>
       </div>
   );
 }

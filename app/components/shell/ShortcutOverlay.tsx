@@ -68,7 +68,7 @@ export default function ShortcutOverlay({ open, onClose }: ShortcutOverlayProps)
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="shortcut-overlay-heading">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={onClose} />
 
@@ -76,7 +76,7 @@ export default function ShortcutOverlay({ open, onClose }: ShortcutOverlayProps)
       <div className="relative w-full max-w-2xl mx-4 bg-surface rounded-sm shadow-xl border border-border overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-border">
-          <h2 className="font-headline text-base font-semibold text-ink">
+          <h2 id="shortcut-overlay-heading" className="font-headline text-base font-semibold text-ink">
             Keyboard Shortcuts
           </h2>
           <button

@@ -4,6 +4,7 @@
 // ============================================================
 
 import { type ReactNode, useState, useCallback, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router";
 import PanelResizer from "./PanelResizer";
 import { useWorkspaceStore } from "~/lib/stores/workspace";
 import type { LayoutPreset } from "~/types/workspace";
@@ -23,6 +24,7 @@ export default function DashboardLayout({
   lens,
   dossier,
 }: DashboardLayoutProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const panelLayout = useWorkspaceStore((s) => s.panelLayout);
   const setPanelLayout = useWorkspaceStore((s) => s.setPanelLayout);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -112,6 +114,16 @@ export default function DashboardLayout({
       <div className="md:hidden flex flex-col h-full overflow-hidden">
         {lens ? (
           <>
+            <button
+              onClick={() => {
+                const next = new URLSearchParams(searchParams);
+                next.delete('story');
+                setSearchParams(next);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2.5 border-b border-border text-sm text-ink-muted min-h-[44px] shrink-0"
+            >
+              ← Back to Feed
+            </button>
             <div className="flex-1 overflow-auto">{lens}</div>
           </>
         ) : (

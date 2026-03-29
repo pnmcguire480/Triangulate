@@ -21,7 +21,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: "preconnect", href: "https://fonts.googleapis.com", crossOrigin: "anonymous" },
   {
     rel: "preconnect",
     href: "https://fonts.gstatic.com",
@@ -80,7 +80,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <Meta />
         <Links />
@@ -114,7 +114,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       error.status === 404
         ? "The page you're looking for doesn't exist."
         : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
+  } else if (error && error instanceof Error) {
     details = error.message;
     stack = error.stack;
   }
@@ -128,11 +128,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         <p className="text-ink-muted mb-6">{details}</p>
         <a
           href="/"
-          className="inline-block px-6 py-3 bg-brand-green text-white rounded-sm hover:opacity-90 transition-opacity"
+          className="inline-block px-6 py-3 bg-brand-green text-ink rounded-sm hover:opacity-90 transition-opacity"
         >
           Back to Feed
         </a>
-        {stack && (
+        {import.meta.env.DEV && stack && (
           <pre className="mt-8 w-full p-4 overflow-x-auto text-left text-sm bg-surface rounded-sm border border-border">
             <code>{stack}</code>
           </pre>

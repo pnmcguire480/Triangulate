@@ -8,6 +8,7 @@ import {
   Newspaper,
   Search,
   Database,
+  TrendingUp,
   Bookmark,
   CreditCard,
   ChevronLeft,
@@ -26,6 +27,7 @@ const NAV_ITEMS: SidebarItem[] = [
   { icon: Newspaper, label: "Feed", to: "/" },
   { icon: Search, label: "Search", to: "/search" },
   { icon: Database, label: "Sources", to: "/sources" },
+  { icon: TrendingUp, label: "Trends", to: "/trends" },
   { icon: Bookmark, label: "Watchlist", to: "/watchlist", disabled: true },
 ];
 

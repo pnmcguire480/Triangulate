@@ -101,10 +101,6 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
           scheduleSyncToServer(next);
           return next;
         });
-        // Apply density attribute to HTML element
-        if (typeof document !== "undefined") {
-          document.documentElement.setAttribute("data-density", get().density);
-        }
       },
 
       setPanelLayout: (panelLayout) => {

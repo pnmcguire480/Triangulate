@@ -35,7 +35,7 @@ export default function MobileFilterSheet({ facets, totalFiltered }: MobileFilte
 
       {/* Sheet overlay */}
       {open && (
-        <div className="md:hidden fixed inset-0 z-50 flex flex-col">
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col" role="dialog" aria-modal="true" aria-label="Filters">
           {/* Backdrop */}
           <div
             className="flex-none h-[15vh] bg-ink/40 backdrop-blur-sm"

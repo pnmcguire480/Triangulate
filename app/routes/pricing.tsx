@@ -4,7 +4,7 @@
 // ============================================================
 
 import { useState } from "react";
-import { Link, useLoaderData } from "react-router";
+import { Link, useLoaderData, useSearchParams } from "react-router";
 import { Check, X, Crown, Zap, Coffee } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { Route } from "./+types/pricing";
@@ -93,16 +93,19 @@ const TIERS = [
 
 export default function Pricing({ loaderData }: Route.ComponentProps) {
   const { user } = loaderData;
+  const [searchParams] = useSearchParams();
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const checkoutSuccess = searchParams.get("success") === "true";
+  const checkoutCanceled = searchParams.get("canceled") === "true";
 
-  async function handleCheckout(tier: string) {
+  async function handleCheckout(tier: string, tierKey: string) {
     if (!user) {
       window.location.href = "/auth/signin";
       return;
     }
 
-    setCheckoutLoading(tier);
+    setCheckoutLoading(tierKey);
     setCheckoutError(null);
 
     try {
@@ -126,6 +129,18 @@ export default function Pricing({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+      {/* Checkout feedback banners */}
+      {checkoutSuccess && (
+        <div className="mb-6 px-4 py-3 rounded-sm border border-brand-green/20 bg-brand-green/6 text-sm text-brand-green font-medium text-center">
+          Your subscription is now active!
+        </div>
+      )}
+      {checkoutCanceled && (
+        <div className="mb-6 px-4 py-3 rounded-sm border border-border bg-surface text-sm text-ink-muted text-center">
+          Checkout was cancelled. Ready when you are.
+        </div>
+      )}
+
       {/* Header */}
       <div className="text-center mb-12">
         <div className="rule-line-double mb-6 max-w-xs mx-auto" />
@@ -213,8 +228,8 @@ export default function Pricing({ loaderData }: Route.ComponentProps) {
                 </Link>
               ) : (
                 <button
-                  onClick={() => handleCheckout(tier.name === "Premium" ? "PREMIUM" : "JOURNALIST")}
-                  disabled={isCurrentPlan}
+                  onClick={() => handleCheckout(tier.tierKey === "STANDARD" ? "PREMIUM" : "JOURNALIST", tier.tierKey)}
+                  disabled={isCurrentPlan || checkoutLoading === tier.tierKey}
                   className={cn(
                     "block w-full text-center py-2.5 rounded-sm text-sm font-medium transition-colors mb-6",
                     isCurrentPlan
@@ -224,7 +239,7 @@ export default function Pricing({ loaderData }: Route.ComponentProps) {
                         : "bg-paper-aged text-ink border border-ink/10 hover:border-ink/20 cursor-pointer"
                   )}
                 >
-                  {isCurrentPlan ? "Current Plan" : tier.cta}
+                  {isCurrentPlan ? "Current Plan" : checkoutLoading === tier.tierKey ? "Redirecting..." : tier.cta}
                 </button>
               )}
 

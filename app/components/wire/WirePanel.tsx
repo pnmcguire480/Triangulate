@@ -95,7 +95,7 @@ export default function WirePanel({ stories, isLoading = false }: WirePanelProps
           groups.map((group) => (
             <div key={group.label}>
               {/* Sticky tier header */}
-              <div className="sticky top-0 z-10 flex items-center px-3 py-1.5 bg-paper-aged/80 backdrop-blur-sm border-b border-border">
+              <div className="sticky top-0 z-10 flex items-center px-3 py-1.5 bg-paper border-b border-border">
                 <span className="text-[10px] font-semibold text-ink-muted uppercase tracking-wider">
                   {group.label}
                 </span>

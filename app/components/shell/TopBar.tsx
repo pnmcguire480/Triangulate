@@ -4,7 +4,7 @@
 // ============================================================
 
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { Search, X, Crown, User } from "lucide-react";
 import ThemeToggle from "~/components/ui/ThemeToggle";
 
@@ -28,6 +28,7 @@ export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalet
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Focus search input when overlay opens
   useEffect(() => {
@@ -36,24 +37,10 @@ export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalet
     }
   }, [searchOpen]);
 
-  // Ctrl+K: prefer command palette if available, else local search
+  // Close search overlay on route change
   useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        if (onOpenCommandPalette) {
-          onOpenCommandPalette();
-        } else {
-          setSearchOpen(true);
-        }
-      }
-      if (e.key === "Escape") {
-        setSearchOpen(false);
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onOpenCommandPalette]);
+    setSearchOpen(false);
+  }, [location.pathname]);
 
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,7 +61,7 @@ export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalet
         <span className="font-headline text-base font-bold tracking-[0.08em] text-ink">
           TRIANGULATE
         </span>
-        <span className="text-[9px] font-body tracking-[0.05em] text-ink-faint hidden lg:inline">
+        <span className="text-[11px] font-body tracking-[0.05em] text-ink-faint hidden lg:inline">
           WHERE ENEMIES AGREE
         </span>
       </Link>
@@ -98,7 +85,7 @@ export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalet
         {/* Mobile search icon */}
         <button
           onClick={() => setSearchOpen(true)}
-          className="md:hidden w-8 h-8 flex items-center justify-center text-ink-muted hover:text-ink transition-colors"
+          className="md:hidden w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-ink-muted hover:text-ink transition-colors"
           aria-label="Search"
         >
           <Search className="w-4 h-4" />
@@ -166,7 +153,7 @@ export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalet
               <button
                 type="button"
                 onClick={() => setSearchOpen(false)}
-                className="w-6 h-6 flex items-center justify-center text-ink-faint hover:text-ink"
+                className="w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-ink-faint hover:text-ink"
                 aria-label="Close search"
               >
                 <X className="w-4 h-4" />

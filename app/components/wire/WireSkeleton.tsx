@@ -9,8 +9,7 @@ export default function WireSkeleton() {
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-3 px-3 py-3 border-b border-border animate-pulse"
-          style={{ minHeight: "72px" }}
+          className="flex items-center gap-3 px-3 py-3 border-b border-border animate-pulse min-h-[72px]"
         >
           {/* Mini gauge skeleton */}
           <div className="w-12 flex flex-col items-center gap-1">

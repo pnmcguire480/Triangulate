@@ -47,7 +47,18 @@ export function useFilterState() {
   }, [setSearchParams]);
 
   const isDefault = useMemo(() => {
-    return JSON.stringify(filterState) === JSON.stringify(DEFAULT_FILTER_STATE);
+    return (
+      filterState.biasTiers.length === 0 &&
+      filterState.regions.length === 0 &&
+      filterState.preset === null &&
+      filterState.convergenceMin === 0 &&
+      filterState.convergenceMax === 100 &&
+      filterState.timeHorizon === DEFAULT_FILTER_STATE.timeHorizon &&
+      filterState.topics.length === 0 &&
+      filterState.trustSignals.length === 0 &&
+      filterState.sourceCountMin === 1 &&
+      filterState.contentTypes.length === 0
+    );
   }, [filterState]);
 
   return {

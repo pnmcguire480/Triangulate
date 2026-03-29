@@ -21,7 +21,7 @@
   --color-ink: #1A1A2E;
   --color-ink-light: #3D3D56;
   --color-ink-muted: #6B6B82;
-  --color-ink-faint: #7A7A92;
+  --color-ink-faint: #9A9AB0;
   --color-paper: #FAF9F6;
   --color-paper-aged: #F5F0E8;
   --color-paper-dark: #EDE8DD;
@@ -217,14 +217,6 @@ body {
 .dark .card-glow:hover {
   border-color: rgba(0, 255, 136, 0.15);
   box-shadow: 0 0 20px rgba(0, 255, 136, 0.05);
-}
-
-/* ============================================================
-   Surface Overrides — bg-white → bg-surface
-   ============================================================ */
-
-.dark .bg-white {
-  background-color: var(--color-surface) !important;
 }
 
 /* ============================================================

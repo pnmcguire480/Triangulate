@@ -90,7 +90,7 @@ export default function Sources() {
           <Database className="w-5 h-5 text-ink-muted" aria-hidden="true" />
           <h1 className="font-headline text-2xl font-bold text-ink">Source Directory</h1>
         </div>
-        <p className="text-sm text-ink-muted">
+        <p className="text-sm text-ink-muted" aria-live="polite">
           {sources.length} outlets across the political spectrum from {Object.keys(byRegion).length} global regions.
         </p>
       </div>
@@ -144,7 +144,7 @@ export default function Sources() {
       </div>
 
       {filtered.length === 0 && (
-        <p className="text-center text-sm text-ink-muted py-12">
+        <p className="text-center text-sm text-ink-muted py-12" aria-live="polite">
           No sources match &ldquo;{searchQuery}&rdquo;
         </p>
       )}
