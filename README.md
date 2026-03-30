@@ -1,85 +1,74 @@
-# Triangulate — Chunk 1: Project Setup
+# Triangulate
 
-## What's In This Package
+A global news convergence engine that shows where ideologically opposed outlets confirm the same facts.
 
-The complete Chunk 1 project skeleton — 46 files including:
+## What It Does
 
-- Next.js 14 project with App Router and TypeScript
-- Tailwind CSS configured with brand colors and custom fonts
-- Full folder structure for all 10 chunks
-- Working homepage with hero, "How It Works," and "What It Is/Isn't" sections
-- Header with responsive mobile menu
-- Footer with brand tagline
-- All UI components (Badge, Button, Card, Skeleton)
-- TrustSignalBadge component
-- Type definitions for every entity
-- Library helpers (Prisma, Claude API, Stripe, RSS, convergence, clustering, signals)
-- Placeholder API routes for all endpoints
-- Placeholder pages for Story View, Search, Pricing, Sign In
-- Environment variable template
-- Vercel cron job configuration
-- .gitignore ready to go
+Triangulate ingests 55+ news outlets across the political spectrum (FAR_LEFT to FAR_RIGHT) from 7 global regions. It clusters articles about the same event, extracts factual claims, and scores convergence based on ideological spread and cross-regional agreement. It shows users where adversarial sources agree on the facts.
 
-## Setup Instructions
+## Tech Stack
 
-### Step 1: Extract the project
+- **Framework:** React Router v7 (Remix) + Vite 7
+- **Language:** TypeScript 5.9
+- **Database:** PostgreSQL with Prisma 6.3
+- **CSS:** Tailwind CSS 4.1
+- **AI:** Claude API (primary), Gemini/DeepSeek/Grok (Round Table verification)
+- **Payments:** Stripe
+- **Testing:** Vitest 4.1
+- **State:** Zustand + URL params (filters)
 
-```bash
-tar -xzf triangulate-chunk1.tar.gz
-cd triangulate
-```
-
-### Step 2: Install dependencies
+## Setup
 
 ```bash
 npm install
 ```
 
-### Step 3: Run the development server
+### Environment Variables
+
+Copy `.env.example` to `.env` and set:
+
+- `DATABASE_URL` — PostgreSQL connection string (Neon recommended)
+- `ANTHROPIC_API_KEY` — Claude API key
+- `CRON_SECRET` — Secret for pipeline cron endpoints
+- `STRIPE_SECRET_KEY` — Stripe secret key
+- `STRIPE_PREMIUM_PRICE_ID` — Stripe price ID for Premium tier
+- `STRIPE_JOURNALIST_PRICE_ID` — Stripe price ID for Journalist Pro tier
+- `MAGIC_LINK_BASE_URL` — Base URL for magic link emails
+- `SESSION_SECRET` — Session cookie secret
+
+### Database
+
+```bash
+npx prisma migrate dev
+npx prisma db seed
+```
+
+### Development
 
 ```bash
 npm run dev
 ```
 
-### Step 4: Open in browser
+Open http://localhost:5173
 
-Go to http://localhost:3000
+## Key Commands
 
-You should see the Triangulate homepage with:
-- "TRIANGULATE" header with navigation
-- Founder Member badge
-- "See where the sources agree." hero headline
-- Trust signal badges
-- "How It Works" section
-- Placeholder daily feed cards
-- "What It Is / What It Isn't" section
-- Footer
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm run start` | Serve production build |
+| `npm run test` | Run tests |
+| `npm run typecheck` | Type check |
+| `npx prisma studio` | Database GUI |
 
-### Step 5: Initialize git and push to GitHub
+## Pipeline
 
-```bash
-git init
-git add .
-git commit -m "Chunk 1: Project setup and folder structure"
+1. **Ingest** — Fetch articles from 55+ RSS feeds
+2. **Cluster** — Group articles about the same event (entity-graph engine)
+3. **Analyze** — Extract claims, calculate convergence, detect primary docs
+4. **Serve** — Display with filtering, search, and visualization
 
-# Create a repo on GitHub called "triangulate", then:
-git remote add origin https://github.com/YOUR_USERNAME/triangulate.git
-git branch -M main
-git push -u origin main
-```
+## License
 
-## What's Next
-
-**Chunk 2: Database Schema & Source Seeding**
-- Set up PostgreSQL (recommend Neon.tech — free tier)
-- Create Prisma schema with all data models
-- Seed database with 20 news outlets and their RSS feeds
-
-Use the Chunk 2 prompt from your Build Prompt document.
-
-## Notes
-
-- The `.env.local` file has placeholder values — you'll fill these in as you build each chunk
-- All placeholder components say which chunk they'll be built in
-- API routes return JSON status messages confirming they're ready for implementation
-- The homepage is fully designed and functional — not a placeholder
+See [LICENSE](LICENSE).

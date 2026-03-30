@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triangulate — Trust Through Convergence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-deep: #0a0a12;
+  --bg-card: #12121e;
+  --bg-card-hover: #181828;
+  --bg-surface: #1a1a2e;
+  --text-primary: #e8e6e1;
+  --text-secondary: #8a8a9a;
+  --text-muted: #4a4a5a;
+  --accent-green: #2d6a4f;
+  --accent-green-light: #40916c;
+  --accent-amber: #e9c46a;
+  --accent-red: #e76f51;
+  --accent-teal: #264653;
+  --accent-purple: #6c63ff;
+  --accent-gold: #d4a853;
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(255,255,255,0.12);
+  --font-headline: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Outfit', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============ UTILITY ============ */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+.section { padding: 8rem 0; position: relative; }
+
+/* ============ GRAIN OVERLAY ============ */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ============ ANIMATIONS ============ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse-signal {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+  50% { opacity: 0.7; box-shadow: 0 0 12px 2px currentColor; }
+}
+@keyframes draw-line {
+  from { width: 0; }
+  to { width: 100%; }
+}
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes convergence-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(45,106,79,0); }
+  50% { box-shadow: 0 0 40px rgba(45,106,79,0.15); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ============ NAV ============ */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1.2rem 2rem;
+  background: rgba(10,10,18,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  font-family: var(--font-headline);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.nav-links { display: flex; gap: 2.5rem; align-items: center; }
+.nav-links a {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.nav-links a:hover { color: var(--text-primary); }
+.nav-cta {
+  font-size: 0.75rem !important;
+  padding: 0.5rem 1.2rem;
+  background: var(--accent-green);
+  color: var(--text-primary) !important;
+  border-radius: 4px;
+  transition: background 0.3s !important;
+}
+.nav-cta:hover { background: var(--accent-green-light) !important; }
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+}
+
+/* ============ HERO ============ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(45,106,79,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 70%, rgba(108,99,255,0.05) 0%, transparent 70%);
+}
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+.hero-content {
+  position: relative;
+  text-align: center;
+  max-width: 800px;
+  padding: 0 2rem;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  background: rgba(45,106,79,0.12);
+  border: 1px solid rgba(45,106,79,0.25);
+  color: var(--accent-green-light);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.8s ease forwards;
+}
+.hero-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-green-light);
+  animation: pulse-signal 2s ease-in-out infinite;
+}
+.hero h1 {
+  font-family: var(--font-headline);
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.8s ease 0.15s forwards;
+  opacity: 0;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent-green-light);
+  position: relative;
+}
+.hero h1 em::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  height: 2px;
+  background: var(--accent-green);
+  animation: draw-line 1s ease 1s forwards;
+  width: 0;
+}
+.hero-sub {
+  font-size: 1.15rem;
+  font-weight: 300;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 550px;
+  margin: 0 auto 3rem;
+  animation: fadeUp 0.8s ease 0.3s forwards;
+  opacity: 0;
+}
+.hero-ctas {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeUp 0.8s ease 0.45s forwards;
+  opacity: 0;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary {
+  background: var(--accent-green);
+  color: var(--text-primary);
+}
+.btn-primary:hover { background: var(--accent-green-light); transform: translateY(-1px); }
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-hover);
+}
+.btn-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+
+.hero-scroll {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  animation: fadeIn 1s ease 1.5s forwards, float 3s ease-in-out infinite 2s;
+  opacity: 0;
+}
+
+/* ============ PROBLEM ============ */
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+.problem-stat {
+  text-align: center;
+  padding: 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-card);
+  transition: all 0.3s;
+}
+.problem-stat:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
+}
+.problem-number {
+  font-family: var(--font-headline);
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.problem-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-green-light);
+  margin-bottom: 1rem;
+}
+.section-title {
+  font-family: var(--font-headline);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+}
+.section-text {
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  max-width: 520px;
+}
+
+@media (max-width: 768px) {
+  .problem-grid { grid-template-columns: 1fr; }
+}
+
+/* ============ HOW IT WORKS ============ */
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-top: 4rem;
+}
+.how-step {
+  padding: 2.5rem 2rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-card);
+  position: relative;
+  transition: all 0.4s;
+}
+.how-step:hover {
+  border-color: var(--accent-green);
+  transform: translateY(-4px);
+}
+.how-step-num {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent-green-light);
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.1em;
+}
+.how-step h3 {
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.how-step p {
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+  .how-steps { grid-template-columns: 1fr; }
+}
+
+/* ============ LIVE DEMO ============ */
+.demo-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 3rem;
+}
+.demo-header {
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.demo-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.demo-title {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-left: 0.5rem;
+}
+.demo-body { padding: 2rem; }
+.demo-story-header {
+  margin-bottom: 2rem;
+}
+.demo-story-title {
+  font-family: var(--font-headline);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.demo-signals {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.signal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+.signal-green { background: rgba(45,106,79,0.15); color: var(--accent-green-light); border: 1px solid rgba(45,106,79,0.3); }
+.signal-teal { background: rgba(38,70,83,0.15); color: #4db8a4; border: 1px solid rgba(38,70,83,0.3); }
+.demo-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.demo-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.demo-col {
+  background: var(--bg-deep);
+  padding: 1.5rem;
+}
+.demo-col-header {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.demo-col-left .demo-col-header { color: #6b8cff; }
+.demo-col-center .demo-col-header { color: var(--text-secondary); }
+.demo-col-right .demo-col-header { color: #ff6b6b; }
+
+.demo-article {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s;
+}
+.demo-article:hover { border-color: var(--border-hover); }
+.demo-article-source {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+.demo-article-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+.demo-article-type {
+  font-size: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  display: inline-block;
+}
+.convergence-highlight {
+  background: rgba(45,106,79,0.08);
+  border-left: 2px solid var(--accent-green);
+  padding: 0.75rem 1rem;
+  border-radius: 0 6px 6px 0;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--accent-green-light);
+  animation: convergence-glow 3s ease-in-out infinite;
+}
+
+.demo-claims {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.demo-claims-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.demo-claim {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.demo-claim:last-child { border-bottom: none; }
+.claim-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 0.35rem;
+  flex-shrink: 0;
+}
+.claim-dot-green { background: var(--accent-green-light); }
+.claim-dot-amber { background: var(--accent-amber); }
+.claim-dot-red { background: var(--accent-red); }
+.claim-text {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+.claim-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .demo-columns { grid-template-columns: 1fr; }
+}
+
+/* ============ DIFFERENTIATOR ============ */
+.diff-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 3rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.diff-table th, .diff-table td {
+  padding: 1.2rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.diff-table th {
+  background: var(--bg-surface);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.diff-table td {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+.diff-table tr:last-child td { border-bottom: none; }
+.diff-table .feature-col { color: var(--text-primary); font-weight: 500; }
+.diff-check { color: var(--accent-green-light); font-size: 1.1rem; }
+.diff-x { color: var(--text-muted); }
+.diff-highlight td {
+  background: rgba(45,106,79,0.06);
+}
+
+/* ============ PRICING ============ */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+.pricing-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+  background: var(--bg-card);
+  position: relative;
+  transition: all 0.3s;
+}
+.pricing-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+.pricing-featured {
+  border-color: var(--accent-green);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(45,106,79,0.06) 100%);
+}
+.pricing-featured::before {
+  content: 'MOST POPULAR';
+  position: absolute;
+  top: -0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.25rem 1rem;
+  background: var(--accent-green);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  border-radius: 100px;
+}
+.pricing-tier {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.pricing-price {
+  font-family: var(--font-headline);
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+.pricing-price span { font-size: 1rem; color: var(--text-muted); font-weight: 400; }
+.pricing-annual {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+.pricing-features {
+  list-style: none;
+  margin-bottom: 2rem;
+}
+.pricing-features li {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.pricing-features li::before {
+  content: '→';
+  color: var(--accent-green-light);
+  font-size: 0.75rem;
+}
+.pricing-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+}
+
+/* ============ REVENUE ============ */
+.revenue-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 2rem;
+  height: 300px;
+  margin-top: 3rem;
+  padding: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-card);
+}
+.revenue-bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  height: 100%;
+  justify-content: flex-end;
+}
+.revenue-bar {
+  width: 100%;
+  max-width: 80px;
+  border-radius: 6px 6px 0 0;
+  position: relative;
+  transition: all 1s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+.revenue-bar-sub {
+  background: var(--accent-green);
+  width: 100%;
+}
+.revenue-bar-aff {
+  background: var(--accent-purple);
+  width: 100%;
+}
+.revenue-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.revenue-amount {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ============ PRINCIPLES ============ */
+.principles-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+.principle {
+  padding: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-card);
+  transition: all 0.3s;
+}
+.principle:hover { border-color: var(--accent-red); }
+.principle-icon {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+.principle h4 {
+  font-family: var(--font-headline);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.principle p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .principles-grid { grid-template-columns: 1fr; }
+}
+
+/* ============ FOUNDER ============ */
+.founder-banner {
+  border: 1px solid var(--accent-green);
+  border-radius: 16px;
+  padding: 3rem;
+  background: linear-gradient(135deg, rgba(45,106,79,0.08), rgba(108,99,255,0.04));
+  text-align: center;
+  margin-top: 3rem;
+}
+.founder-banner h3 {
+  font-family: var(--font-headline);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.founder-banner p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  max-width: 500px;
+  margin: 0 auto 2rem;
+  line-height: 1.7;
+}
+
+/* ============ CTA ============ */
+.final-cta {
+  text-align: center;
+  padding: 10rem 2rem;
+  position: relative;
+}
+.final-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(45,106,79,0.1) 0%, transparent 70%);
+}
+.final-cta h2 {
+  font-family: var(--font-headline);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  position: relative;
+}
+.final-cta p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+/* ============ FOOTER ============ */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+footer p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.footer-tagline {
+  font-family: var(--font-headline);
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+/* ============ DIVIDER ============ */
+.section-divider {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-green), transparent);
+  margin: 0 auto;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 600px) {
+  .section { padding: 5rem 0; }
+  .container { padding: 0 1.25rem; }
+  .demo-body { padding: 1rem; }
+  .revenue-chart { flex-wrap: wrap; height: auto; gap: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">TRIANGULATE</a>
+  <div class="nav-links">
+    <a href="#problem">Problem</a>
+    <a href="#solution">Solution</a>
+    <a href="#demo">Demo</a>
+    <a href="#business">Business</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact" class="nav-cta">Get in Touch</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Investor Proposal — February 2026
+    </div>
+    <h1>Trust Through<br><em>Convergence</em></h1>
+    <p class="hero-sub">
+      When ideologically opposed sources confirm the same facts, those facts carry weight no single source can provide. Triangulate makes that signal visible.
+    </p>
+    <div class="hero-ctas">
+      <a href="#demo" class="btn btn-primary">See It In Action</a>
+      <a href="#business" class="btn btn-secondary">The Business Case</a>
+    </div>
+  </div>
+  <div class="hero-scroll">↓ Scroll to explore</div>
+</section>
+
+<!-- PROBLEM -->
+<section class="section" id="problem">
+  <div class="container">
+    <div class="problem-grid">
+      <div>
+        <div class="section-label reveal">The Problem</div>
+        <h2 class="section-title reveal reveal-delay-1">Trust in media is at<br>a generational low.</h2>
+        <p class="section-text reveal reveal-delay-2">
+          Not because good information doesn't exist — but because people have no reliable way to distinguish it from noise, spin, and outright fabrication. Every existing solution asks people to trust a new authority. That just adds another source to evaluate.
+        </p>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="problem-stat reveal reveal-delay-1">
+          <div class="problem-number" style="color: var(--accent-red);">31%</div>
+          <div class="problem-label">of Americans trust<br>mass media</div>
+        </div>
+        <div class="problem-stat reveal reveal-delay-2">
+          <div class="problem-number" style="color: var(--accent-amber);">200M+</div>
+          <div class="problem-label">US adults consume<br>news daily</div>
+        </div>
+        <div class="problem-stat reveal reveal-delay-3">
+          <div class="problem-number" style="color: var(--accent-purple);">5.3</div>
+          <div class="problem-label">avg. sources checked<br>per major story</div>
+        </div>
+        <div class="problem-stat reveal reveal-delay-4">
+          <div class="problem-number" style="color: var(--accent-green-light);">∞</div>
+          <div class="problem-label">manual effort<br>to triangulate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION / HOW IT WORKS -->
+<section class="section" id="solution" style="border-top: 1px solid var(--border);">
+  <div class="container">
+    <div style="text-align: center;">
+      <div class="section-label reveal">The Solution</div>
+      <h2 class="section-title reveal reveal-delay-1">Don't trust a source.<br>Trust the signal.</h2>
+      <p class="section-text reveal reveal-delay-2" style="margin: 0 auto;">
+        Triangulate automates what millions already do by hand — checking multiple outlets, looking for primary sources, trying to find ground truth. We make trust emergent, not declared.
+      </p>
+    </div>
+
+    <div class="how-steps">
+      <div class="how-step reveal reveal-delay-1">
+        <div class="how-step-num">01 — GATHER</div>
+        <h3>Coverage from every angle</h3>
+        <p>20 outlets across the political spectrum. Left, center, right. Reporting and commentary, separated. Every major story, every perspective.</p>
+      </div>
+      <div class="how-step reveal reveal-delay-2">
+        <div class="how-step-num">02 — ANALYZE</div>
+        <h3>Find where they converge</h3>
+        <p>AI extracts factual claims from each source, then identifies where ideologically opposed outlets independently confirm the same facts. That's the signal.</p>
+      </div>
+      <div class="how-step reveal reveal-delay-3">
+        <div class="how-step-num">03 — VERIFY</div>
+        <h3>Surface primary evidence</h3>
+        <p>Court filings. Legislation text. Official data. Transcripts. When the original document exists, we link you directly to it. Skip the middlemen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DEMO -->
+<section class="section" id="demo" style="border-top: 1px solid var(--border);">
+  <div class="container">
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <div class="section-label reveal">Product Demo</div>
+      <h2 class="section-title reveal reveal-delay-1">See convergence in action.</h2>
+    </div>
+
+    <div class="demo-container reveal reveal-delay-2">
+      <div class="demo-header">
+        <div class="demo-dot" style="background: var(--accent-red);"></div>
+        <div class="demo-dot" style="background: var(--accent-amber);"></div>
+        <div class="demo-dot" style="background: var(--accent-green-light);"></div>
+        <span class="demo-title">triangulate.app — Story View</span>
+      </div>
+      <div class="demo-body">
+        <div class="demo-story-header">
+          <div class="demo-signals">
+            <span class="signal-badge signal-green">🟢 Converged</span>
+            <span class="signal-badge signal-teal">📄 Source-Backed</span>
+          </div>
+          <div class="demo-story-title">Senate Passes Infrastructure Package in 67-32 Vote</div>
+          <div class="demo-meta">Covered by 14 outlets · 9 reporting, 5 commentary · Last updated 2 hours ago</div>
+        </div>
+
+        <div class="demo-columns">
+          <div class="demo-col demo-col-left">
+            <div class="demo-col-header">Left-Leaning</div>
+            <div class="demo-article">
+              <div class="demo-article-source">MSNBC</div>
+              <div class="demo-article-title">Senate Passes Historic Infrastructure Bill With Bipartisan Support</div>
+              <span class="demo-article-type">Reporting</span>
+              <div class="convergence-highlight">✓ Confirms: 67-32 vote, $1.2T total</div>
+            </div>
+            <div class="demo-article">
+              <div class="demo-article-source">Washington Post</div>
+              <div class="demo-article-title">Infrastructure Deal Clears Senate After Months of Negotiation</div>
+              <span class="demo-article-type">Reporting</span>
+            </div>
+          </div>
+          <div class="demo-col demo-col-center">
+            <div class="demo-col-header">Center</div>
+            <div class="demo-article">
+              <div class="demo-article-source">Associated Press</div>
+              <div class="demo-article-title">Senate Approves $1.2 Trillion Infrastructure Bill, 67-32</div>
+              <span class="demo-article-type">Reporting</span>
+              <div class="convergence-highlight">✓ Confirms: 67-32 vote, $1.2T total, $550B new spending</div>
+            </div>
+            <div class="demo-article">
+              <div class="demo-article-source">Reuters</div>
+              <div class="demo-article-title">U.S. Senate Passes Bipartisan Infrastructure Bill</div>
+              <span class="demo-article-type">Reporting</span>
+            </div>
+          </div>
+          <div class="demo-col demo-col-right">
+            <div class="demo-col-header">Right-Leaning</div>
+            <div class="demo-article">
+              <div class="demo-article-source">Fox News</div>
+              <div class="demo-article-title">Senate Passes $1.2T Infrastructure Package; 19 GOP Senators Vote Yes</div>
+              <span class="demo-article-type">Reporting</span>
+              <div class="convergence-highlight">✓ Confirms: 67-32 vote, $1.2T total</div>
+            </div>
+            <div class="demo-article">
+              <div class="demo-article-source">Wall Street Journal</div>
+              <div class="demo-article-title">Infrastructure Bill Passes Senate With Broad Support</div>
+              <span class="demo-article-type">Reporting</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-claims">
+          <div class="demo-claims-header">Key Claims</div>
+          <div class="demo-claim">
+            <div class="claim-dot claim-dot-green"></div>
+            <div>
+              <div class="claim-text">The bill passed the Senate with a 67-32 vote</div>
+              <div class="claim-meta">Converged — confirmed by 12 of 14 outlets across the spectrum</div>
+            </div>
+          </div>
+          <div class="demo-claim">
+            <div class="claim-dot claim-dot-green"></div>
+            <div>
+              <div class="claim-text">The total package is valued at approximately $1.2 trillion</div>
+              <div class="claim-meta">Converged — confirmed by 11 of 14 outlets across the spectrum</div>
+            </div>
+          </div>
+          <div class="demo-claim">
+            <div class="claim-dot claim-dot-green"></div>
+            <div>
+              <div class="claim-text">$550 billion represents new federal spending</div>
+              <div class="claim-meta">Converged — confirmed by 8 of 14 outlets · 📄 CBO estimate available</div>
+            </div>
+          </div>
+          <div class="demo-claim">
+            <div class="claim-dot claim-dot-amber"></div>
+            <div>
+              <div class="claim-text">The bill is fully paid for without raising taxes</div>
+              <div class="claim-meta">Contested — left-leaning sources dispute CBO scoring; right-leaning sources affirm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIFFERENTIATOR -->
+<section class="section" id="differentiator" style="border-top: 1px solid var(--border);">
+  <div class="container">
+    <div style="text-align: center;">
+      <div class="section-label reveal">Competitive Advantage</div>
+      <h2 class="section-title reveal reveal-delay-1">What others show vs.<br>what we reveal.</h2>
+    </div>
+
+    <table class="diff-table reveal reveal-delay-2">
+      <thead>
+        <tr>
+          <th class="feature-col">Feature</th>
+          <th>Google News</th>
+          <th>AllSides</th>
+          <th>Ground News</th>
+          <th style="color: var(--accent-green-light);">Triangulate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="feature-col">Multi-source coverage</td>
+          <td><span class="diff-check">✓</span></td>
+          <td><span class="diff-check">✓</span></td>
+          <td><span class="diff-check">✓</span></td>
+          <td><span class="diff-check">✓</span></td>
+        </tr>
+        <tr>
+          <td class="feature-col">Bias labels on outlets</td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-check">✓</span></td>
+          <td><span class="diff-check">✓</span></td>
+          <td><span class="diff-check">✓</span></td>
+        </tr>
+        <tr class="diff-highlight">
+          <td class="feature-col">Factual claim extraction</td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-check">✓</span></td>
+        </tr>
+        <tr class="diff-highlight">
+          <td class="feature-col">Cross-spectrum convergence scoring</td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-check">✓</span></td>
+        </tr>
+        <tr class="diff-highlight">
+          <td class="feature-col">Reporting vs. commentary separation</td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-check">✓</span></td>
+        </tr>
+        <tr class="diff-highlight">
+          <td class="feature-col">Primary source document surfacing</td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-check">✓</span></td>
+        </tr>
+        <tr>
+          <td class="feature-col">Ad-free</td>
+          <td><span class="diff-x">—</span></td>
+          <td><span class="diff-check">✓</span></td>
+          <td><span class="diff-check">✓</span></td>
+          <td><span class="diff-check">✓</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- BUSINESS MODEL -->
+<section class="section" id="business" style="border-top: 1px solid var(--border);">
+  <div class="container">
+    <div style="text-align: center;">
+      <div class="section-label reveal">Business Model</div>
+      <h2 class="section-title reveal reveal-delay-1">Sustainable by design.</h2>
+      <p class="section-text reveal reveal-delay-2" style="margin: 0 auto;">
+        Two revenue streams that align every incentive: subscriptions and affiliate partnerships with news outlets. We're rewarded for surfacing the best journalism, not the loudest.
+      </p>
+    </div>
+
+    <div class="revenue-chart reveal reveal-delay-3">
+      <div class="revenue-bar-group">
+        <div class="revenue-amount">$1.3K</div>
+        <div class="revenue-bar" style="height: 25px;">
+          <div class="revenue-bar-sub" style="height: 20px;"></div>
+          <div class="revenue-bar-aff" style="height: 5px;"></div>
+        </div>
+        <div class="revenue-label">Month 3</div>
+      </div>
+      <div class="revenue-bar-group">
+        <div class="revenue-amount">$8.6K</div>
+        <div class="revenue-bar" style="height: 80px;">
+          <div class="revenue-bar-sub" style="height: 65px;"></div>
+          <div class="revenue-bar-aff" style="height: 15px;"></div>
+        </div>
+        <div class="revenue-label">Month 6</div>
+      </div>
+      <div class="revenue-bar-group">
+        <div class="revenue-amount">$24K</div>
+        <div class="revenue-bar" style="height: 160px;">
+          <div class="revenue-bar-sub" style="height: 130px;"></div>
+          <div class="revenue-bar-aff" style="height: 30px;"></div>
+        </div>
+        <div class="revenue-label">Month 9</div>
+      </div>
+      <div class="revenue-bar-group">
+        <div class="revenue-amount">$39.6K</div>
+        <div class="revenue-bar" style="height: 240px;">
+          <div class="revenue-bar-sub" style="height: 195px;"></div>
+          <div class="revenue-bar-aff" style="height: 45px;"></div>
+        </div>
+        <div class="revenue-label">Month 12</div>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 1rem;">
+      <span style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; color: var(--text-muted); margin-right: 1.5rem;">
+        <span style="width: 10px; height: 10px; border-radius: 2px; background: var(--accent-green);"></span>
+        Subscriptions
+      </span>
+      <span style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; color: var(--text-muted);">
+        <span style="width: 10px; height: 10px; border-radius: 2px; background: var(--accent-purple);"></span>
+        Affiliate Revenue
+      </span>
+    </div>
+    <p class="reveal" style="text-align: center; margin-top: 2rem; font-size: 0.95rem; color: var(--text-secondary);">
+      Conservative projections: <strong style="color: var(--text-primary);">~$475K ARR</strong> at month 12 with 8,000 users. No VC required to reach profitability.
+    </p>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing" style="border-top: 1px solid var(--border);">
+  <div class="container">
+    <div style="text-align: center;">
+      <div class="section-label reveal">Pricing</div>
+      <h2 class="section-title reveal reveal-delay-1">Three tiers. Forever.</h2>
+      <p class="section-text reveal reveal-delay-2" style="margin: 0 auto;">
+        Your price is locked the day you subscribe. We'll never raise it on you. We'll never add a fourth tier. And early adopters get it free for life.
+      </p>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-card reveal reveal-delay-1">
+        <div class="pricing-tier">Free</div>
+        <div class="pricing-price">$0<span></span></div>
+        <div class="pricing-annual">Forever free</div>
+        <ul class="pricing-features">
+          <li>Top 5 stories per day</li>
+          <li>Story-level trust signals</li>
+          <li>2-source convergence view</li>
+          <li>Primary source links</li>
+        </ul>
+        <a href="#" class="btn btn-secondary pricing-btn">Get Started</a>
+      </div>
+      <div class="pricing-card pricing-featured reveal reveal-delay-2">
+        <div class="pricing-tier">Standard</div>
+        <div class="pricing-price">$5<span>/mo</span></div>
+        <div class="pricing-annual">$50/year (save $10)</div>
+        <ul class="pricing-features">
+          <li>Full daily feed</li>
+          <li>Claim-level trust signals</li>
+          <li>Full 3-column convergence</li>
+          <li>5 searches per day</li>
+          <li>Reporting vs. commentary labels</li>
+          <li>Weekly email digest</li>
+        </ul>
+        <a href="#" class="btn btn-primary pricing-btn">Subscribe</a>
+      </div>
+      <div class="pricing-card reveal reveal-delay-3">
+        <div class="pricing-tier">Premium</div>
+        <div class="pricing-price">$18<span>/mo</span></div>
+        <div class="pricing-annual">$180/year (save $36)</div>
+        <ul class="pricing-features">
+          <li>Everything in Standard</li>
+          <li>Unlimited searches</li>
+          <li>Convergence history</li>
+          <li>Daily digest + custom topics</li>
+          <li>Exclusive outlet bundle deals</li>
+          <li>API access (1K req/mo)</li>
+        </ul>
+        <a href="#" class="btn btn-secondary pricing-btn">Subscribe</a>
+      </div>
+    </div>
+
+    <div class="founder-banner reveal">
+      <h3>Founder Members — Free for Life</h3>
+      <p>Join during the startup phase and receive permanent Standard-tier access at no cost. No trial. No expiration. Because you believed in this before anyone else did.</p>
+      <a href="#" class="btn btn-primary">Claim Founder Access</a>
+    </div>
+  </div>
+</section>
+
+<!-- PRINCIPLES -->
+<section class="section" style="border-top: 1px solid var(--border);">
+  <div class="container">
+    <div style="text-align: center;">
+      <div class="section-label reveal">Hard Lines</div>
+      <h2 class="section-title reveal reveal-delay-1">What we'll never do.</h2>
+    </div>
+
+    <div class="principles-grid">
+      <div class="principle reveal reveal-delay-1">
+        <div class="principle-icon">🚫</div>
+        <h4>Never sell user data</h4>
+        <p>Not anonymized, not aggregated, not ever. Your reading habits are yours.</p>
+      </div>
+      <div class="principle reveal reveal-delay-2">
+        <div class="principle-icon">🚫</div>
+        <h4>Never run advertising</h4>
+        <p>Triangulate is ad-free. No banners, no sponsored content, no exceptions.</p>
+      </div>
+      <div class="principle reveal reveal-delay-3">
+        <div class="principle-icon">🚫</div>
+        <h4>Never sell trust signals</h4>
+        <p>No one can pay for favorable placement or higher convergence scores.</p>
+      </div>
+      <div class="principle reveal reveal-delay-4">
+        <div class="principle-icon">🚫</div>
+        <h4>Never raise prices on loyal users</h4>
+        <p>Your price is locked the day you subscribe. Stay subscribed, stay locked.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta" id="contact">
+  <h2 class="reveal">The world doesn't need<br>another source to trust.</h2>
+  <p class="reveal reveal-delay-1">It needs a way to see trust forming in real time.</p>
+  <div class="reveal reveal-delay-2" style="position: relative;">
+    <a href="mailto:hello@triangulate.app" class="btn btn-primary" style="font-size: 1rem; padding: 1rem 2.5rem;">Get in Touch</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-tagline">Don't trust a source. Trust the signal.</p>
+  <p>&copy; 2026 Triangulate. All rights reserved. Confidential.</p>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Smooth nav highlighting
+document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>

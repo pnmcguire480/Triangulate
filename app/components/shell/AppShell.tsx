@@ -30,11 +30,7 @@ interface AppShellProps {
 }
 
 export default function AppShell({ user }: AppShellProps) {
-  const [isDark, setIsDark] = useState(() =>
-    typeof document !== 'undefined'
-      ? document.documentElement.classList.contains('dark')
-      : false
-  );
+  const [isDark, setIsDark] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [shortcutOverlayOpen, setShortcutOverlayOpen] = useState(false);
   const sidebarExpanded = useWorkspaceStore((s) => s.sidebarExpanded);
@@ -42,11 +38,22 @@ export default function AppShell({ user }: AppShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Listen for theme changes from CommandPalette
+  // Sync isDark state with DOM on mount (avoids SSR mismatch)
+  useEffect(() => {
+    const stored = localStorage.getItem('triangulate-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const dark = stored === 'dark' || (!stored && prefersDark);
+    setIsDark(dark);
+    document.documentElement.classList.toggle('dark', dark);
+  }, []);
+
+  // Listen for theme changes from other tabs/CommandPalette
   useEffect(() => {
     function handleStorage(e: StorageEvent) {
       if (e.key === 'triangulate-theme') {
-        setIsDark(document.documentElement.classList.contains('dark'));
+        const dark = e.newValue === 'dark';
+        setIsDark(dark);
+        document.documentElement.classList.toggle('dark', dark);
       }
     }
     window.addEventListener('storage', handleStorage);

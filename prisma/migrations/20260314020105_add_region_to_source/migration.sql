@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "Region" AS ENUM ('US', 'UK', 'EUROPE', 'MIDDLE_EAST', 'ASIA_PACIFIC', 'CANADA', 'LATIN_AMERICA', 'AFRICA', 'OCEANIA', 'GLOBAL');
+
+-- AlterTable
+ALTER TABLE "sources" ADD COLUMN     "region" "Region" NOT NULL DEFAULT 'US';

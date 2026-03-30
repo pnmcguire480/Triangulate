@@ -1,0 +1,60 @@
+{
+  "$schema": "paladin-config",
+  "version": "1.0",
+  "project": {
+    "name": "",
+    "type": "auto",
+    "description": ""
+  },
+  "tiers": {
+    "skip": [],
+    "strictMode": false,
+    "tier1": {
+      "enabled": true,
+      "treatWarningsAsErrors": false,
+      "ignorePaths": ["src/generated/**", "src/vendor/**"],
+      "allowedTodos": 5
+    },
+    "tier2": {
+      "enabled": true,
+      "coverageThreshold": {
+        "statements": 80,
+        "branches": 70,
+        "functions": 80,
+        "lines": 80
+      },
+      "testTimeout": 10000
+    },
+    "tier3": {
+      "enabled": true,
+      "apiMockRequired": true,
+      "integrationTestDir": "src/__integration__"
+    },
+    "tier4": {
+      "enabled": true,
+      "a11yLevel": "AA",
+      "breakpoints": [320, 768, 1024, 1440],
+      "maxConsoleLogs": 0
+    },
+    "tier5": {
+      "enabled": true,
+      "lighthouseMinScore": {
+        "performance": 80,
+        "accessibility": 90,
+        "bestPractices": 80,
+        "seo": 80
+      },
+      "maxBundleSizeKb": 500
+    },
+    "tier6": {
+      "enabled": true,
+      "humanTesters": ["Patrick"],
+      "requireSignoff": true
+    }
+  },
+  "reporting": {
+    "outputDir": "paladin-reports",
+    "format": "markdown",
+    "includeTimings": true
+  }
+}

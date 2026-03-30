@@ -48,8 +48,14 @@ export async function action({ request }: Route.ActionArgs) {
     lastSignIn: new Date(),
   };
 
+  // Owner always gets PREMIUM
+  const ownerEmail = process.env.OWNER_EMAIL?.toLowerCase();
+  if (ownerEmail && user.email.toLowerCase() === ownerEmail) {
+    updateData.isFounder = true;
+    updateData.tier = "PREMIUM";
+  }
   // Founder detection: first sign-in during founder phase
-  if (isFounderPhase() && !user.isFounder && user.tier === "FREE") {
+  else if (isFounderPhase() && !user.isFounder && user.tier === "FREE") {
     updateData.isFounder = true;
     updateData.tier = "STANDARD";
   }

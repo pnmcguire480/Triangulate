@@ -1,16 +1,29 @@
 {
+  "alias": ["www.triangulatenews.com", "triangulatenews.com"],
   "crons": [
     {
       "path": "/api/ingest",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 6 * * *"
     },
     {
       "path": "/api/cluster",
-      "schedule": "5,20,35,50 * * * *"
+      "schedule": "0 7 * * *"
     },
     {
       "path": "/api/analyze",
-      "schedule": "10,25,40,55 * * * *"
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/gci",
+      "schedule": "0 9 * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
     }
   ]
 }

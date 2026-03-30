@@ -1,0 +1,13 @@
+{
+  "name": "babytier-os",
+  "version": "2.0.0",
+  "description": "BabyTierOS — A structured development methodology for solo developers building with AI. Scaffolds 10 template files that make AI agents dramatically more useful.",
+  "author": "Patrick McGuire",
+  "license": "MIT",
+  "skills": [
+    {
+      "path": ".",
+      "name": "babytier-os"
+    }
+  ]
+}

@@ -93,9 +93,9 @@ export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalet
 
         <ThemeToggle isDark={isDark} onToggle={onToggleTheme} />
 
-        {/* User info + logout */}
-        {user && (
-          <div className="hidden sm:flex items-center gap-1.5 relative">
+        {/* Auth: Sign In / User Menu */}
+        {user ? (
+          <div className="flex items-center gap-1.5 relative">
             <button
               onClick={() => setUserMenuOpen((v) => !v)}
               className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
@@ -109,7 +109,7 @@ export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalet
                   <User className="w-3.5 h-3.5" aria-hidden="true" />
                 )}
               </div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 bg-ink/5 rounded-sm text-ink-muted">
+              <span className="hidden sm:inline text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 bg-ink/5 rounded-sm text-ink-muted">
                 {user.tier}
               </span>
             </button>
@@ -132,6 +132,13 @@ export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalet
               </>
             )}
           </div>
+        ) : (
+          <Link
+            to="/auth/signin"
+            className="text-xs font-semibold uppercase tracking-wider px-3 py-1.5 bg-ink text-paper rounded-sm hover:bg-ink-light transition-colors"
+          >
+            Sign In
+          </Link>
         )}
       </div>
 
