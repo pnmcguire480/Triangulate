@@ -4,8 +4,7 @@
 // ============================================================
 
 import { useEffect, useRef } from 'react';
-import * as tinykeysMod from 'tinykeys';
-const tinykeys = (tinykeysMod as any).tinykeys || (tinykeysMod as any).default;
+import { tinykeys } from 'tinykeys';
 
 /**
  * Global keyboard shortcut map.

@@ -4,7 +4,7 @@
 // ============================================================
 
 import { useLoaderData } from 'react-router';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { prisma } from '~/lib/prisma.server';
 
 export async function loader() {

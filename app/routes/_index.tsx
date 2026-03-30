@@ -5,17 +5,18 @@
 // ============================================================
 
 import { Link, useLoaderData, useFetcher, useSearchParams, useNavigate } from 'react-router';
-import { format } from 'date-fns';
+
 import { prisma } from '~/lib/prisma.server';
 import { getUser } from '~/lib/auth.server';
 import { getTodayUsage } from '~/lib/usage-tracking';
+import { lazy, Suspense } from 'react';
 import DashboardLayout from '~/components/panels/DashboardLayout';
 import WirePanel from '~/components/wire/WirePanel';
-import FilterSidebar from '~/components/filters/FilterSidebar';
+const FilterSidebar = lazy(() => import('~/components/filters/FilterSidebar'));
 import LensPanel from '~/components/lens/LensPanel';
 import TodaysSurprise from '~/components/wire/TodaysSurprise';
 import { FilterProvider } from '~/lib/filters/FilterProvider';
-import MobileFilterSheet from '~/components/filters/MobileFilterSheet';
+const MobileFilterSheet = lazy(() => import('~/components/filters/MobileFilterSheet'));
 import Footer from '~/components/layout/Footer';
 import type { StoryListRowProps } from '~/components/wire/StoryListRow';
 
@@ -167,7 +168,7 @@ export default function Home() {
     <div className="h-full flex">
       {/* Filter sidebar */}
       <div className="hidden md:block">
-        <FilterSidebar />
+        <Suspense fallback={null}><FilterSidebar /></Suspense>
       </div>
 
       {/* Dashboard */}
@@ -188,7 +189,7 @@ export default function Home() {
 
         {/* Mobile filter sheet */}
         <div className="md:hidden">
-          <MobileFilterSheet />
+          <Suspense fallback={null}><MobileFilterSheet /></Suspense>
         </div>
 
         <DashboardLayout
@@ -214,7 +215,9 @@ function LoggedOutLanding({
   stories: StoryListRowProps[];
   surprise: { id: string; title: string; convergenceScore: number; sourceNames: string[]; claimCount: number } | null;
 }) {
-  const today = format(new Date(), 'EEEE, MMMM d, yyyy');
+  const today = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  }).format(new Date());
   const navigate = useNavigate();
 
   return (

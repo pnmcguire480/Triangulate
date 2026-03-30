@@ -115,6 +115,8 @@ function SidebarLink({
   if (item.disabled) {
     return (
       <div
+        role="link"
+        aria-disabled="true"
         className="flex items-center h-10 px-4 text-ink-faint/50 cursor-not-allowed relative"
         title={`${item.label} (coming soon)`}
       >
@@ -135,6 +137,7 @@ function SidebarLink({
           : "text-ink-muted hover:text-ink hover:bg-ink/[0.04]"
       }`}
       aria-current={active ? "page" : undefined}
+      aria-label={!expanded ? item.label : undefined}
     >
       {/* Active indicator bar */}
       {active && (

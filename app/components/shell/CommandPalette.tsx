@@ -8,9 +8,9 @@ import { useNavigate, useLocation } from 'react-router';
 import { Command } from 'cmdk';
 import {
   Search, Newspaper, Layers, Database, CreditCard,
-  Keyboard, Download, Moon, Sun, Monitor,
-  Filter, ArrowRight, Maximize2, Columns3, SplitSquareHorizontal,
-  Bell, Gauge, HelpCircle, RotateCcw, Settings,
+  Keyboard, Moon, Sun, Monitor,
+  Filter, Maximize2, Columns3, SplitSquareHorizontal,
+  Gauge, HelpCircle, RotateCcw,
 } from 'lucide-react';
 import { useWorkspaceStore } from '~/lib/stores/workspace';
 

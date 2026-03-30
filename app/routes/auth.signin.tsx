@@ -67,7 +67,7 @@ export default function SignIn({ loaderData }: Route.ComponentProps) {
   // Show "check your inbox" state
   if (status === "sent") {
     return (
-      <div className="max-w-md mx-auto px-4 sm:px-6 py-16 text-center">
+      <div className="max-w-md mx-auto px-4 sm:px-6 py-16 text-center" role="status">
         <div className="rule-line-double mb-6 max-w-[200px] mx-auto" />
         <Mail className="w-10 h-10 text-brand-green mx-auto mb-4" />
         <h1 className="font-headline text-2xl font-bold text-ink mb-2">
@@ -118,7 +118,7 @@ export default function SignIn({ loaderData }: Route.ComponentProps) {
           placeholder="your@email.com"
           autoComplete="email"
           aria-invalid={!!errorMsg}
-          aria-describedby="signin-error"
+          aria-describedby={errorMsg ? "signin-error" : undefined}
           className="w-full px-4 py-3 border border-ink/12 rounded-sm text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-ink/30 focus:ring-1 focus:ring-ink/10 transition-colors mb-4"
           required
           disabled={status === "sending"}

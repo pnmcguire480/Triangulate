@@ -98,7 +98,8 @@ export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalet
           <div className="flex items-center gap-1.5 relative">
             <button
               onClick={() => setUserMenuOpen((v) => !v)}
-              className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+              onKeyDown={(e) => { if (e.key === 'Escape') setUserMenuOpen(false); }}
+              className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity min-h-[44px] min-w-[44px]"
               aria-label="User menu"
               aria-expanded={userMenuOpen}
             >
@@ -144,7 +145,7 @@ export default function TopBar({ user, isDark, onToggleTheme, onOpenCommandPalet
 
       {/* Search Overlay */}
       {searchOpen && (
-        <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-start justify-center pt-20">
+        <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-start justify-center pt-20" onKeyDown={(e) => { if (e.key === 'Escape') setSearchOpen(false); }}>
           <div className="w-full max-w-lg mx-4 bg-surface rounded-sm shadow-xl border border-border">
             <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 p-3">
               <Search className="w-4 h-4 text-ink-muted shrink-0" aria-hidden="true" />

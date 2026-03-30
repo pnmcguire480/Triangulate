@@ -29,7 +29,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap",
   },
 ];
 
@@ -87,7 +87,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="h-screen overflow-hidden bg-paper text-ink font-body antialiased transition-colors duration-300">
         <a href="#main-content" className="skip-link">Skip to main content</a>
-        <a href="#feed" className="skip-link">Skip to feed</a>
+        <a href="#wire-panel" className="skip-link">Skip to feed</a>
         <a href="#filters" className="skip-link">Skip to filters</a>
         {children}
         <ScrollRestoration />
@@ -128,7 +128,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         <p className="text-ink-muted mb-6">{details}</p>
         <a
           href="/"
-          className="inline-block px-6 py-3 bg-brand-green text-ink rounded-sm hover:opacity-90 transition-opacity"
+          className="inline-block px-6 py-3 bg-ink text-paper rounded-sm hover:opacity-90 transition-opacity"
         >
           Back to Feed
         </a>

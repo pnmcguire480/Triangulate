@@ -21,7 +21,7 @@
   --color-ink: #1A1A2E;
   --color-ink-light: #3D3D56;
   --color-ink-muted: #6B6B82;
-  --color-ink-faint: #9A9AB0;
+  --color-ink-faint: #75758B;
   --color-paper: #FAF9F6;
   --color-paper-aged: #F5F0E8;
   --color-paper-dark: #EDE8DD;
@@ -90,7 +90,7 @@
   --color-ink: #E8E6F0;
   --color-ink-light: #C4C1D0;
   --color-ink-muted: #8A87A0;
-  --color-ink-faint: #706D88;
+  --color-ink-faint: #8986A3;
   --color-paper: #0A0A12;
   --color-paper-aged: #10101C;
   --color-paper-dark: #161625;
@@ -127,6 +127,16 @@ body {
 
 .dark ::selection {
   background-color: rgba(0, 255, 136, 0.2);
+}
+
+/* Focus indicators */
+:focus-visible {
+  outline: 2px solid var(--color-brand-green);
+  outline-offset: 2px;
+}
+
+.dark :focus-visible {
+  outline-color: var(--color-neon-green);
 }
 
 /* ============================================================
