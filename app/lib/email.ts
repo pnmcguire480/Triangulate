@@ -31,7 +31,7 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions): Promis
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Triangulate <noreply@triangulate.app>',
+          from: 'Triangulate <onboarding@resend.dev>',
           to: [to],
           subject,
           html,
