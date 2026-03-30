@@ -181,7 +181,7 @@ export default function Pricing({ loaderData }: Route.ComponentProps) {
               className={cn(
                 "relative p-6 rounded-sm border transition-all duration-200",
                 tier.highlight
-                  ? "border-ink/20 bg-white shadow-sm"
+                  ? "border-ink/20 bg-surface shadow-sm dark:border-neon-green/20 dark:shadow-[0_0_15px_rgba(0,255,136,0.05)]"
                   : "border-border bg-paper"
               )}
             >
