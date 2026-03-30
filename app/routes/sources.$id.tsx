@@ -5,7 +5,7 @@
 
 import { Link, useLoaderData } from 'react-router';
 import { ArrowLeft, ExternalLink, Rss } from 'lucide-react';
-import { prisma } from '~/lib/prisma';
+import { prisma } from '~/lib/prisma.server';
 
 export async function loader({ params }: { params: { id: string } }) {
   const source = await prisma.source.findUnique({

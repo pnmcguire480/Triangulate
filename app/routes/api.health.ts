@@ -3,7 +3,7 @@
 // Returns last ingest time, active source count, pipeline status
 // ============================================================
 
-import { prisma } from '~/lib/prisma';
+import { prisma } from '~/lib/prisma.server';
 
 export async function loader() {
   const [

@@ -1,6 +1,6 @@
 import type { Route } from "./+types/auth.verify";
-import { prisma } from "~/lib/prisma";
-import { verifyMagicToken, createUserSession, isFounderPhase } from "~/lib/auth";
+import { prisma } from "~/lib/prisma.server";
+import { verifyMagicToken, createUserSession, isFounderPhase } from '~/lib/auth.server';
 import { useEffect, useRef } from "react";
 import { useFetcher, useSearchParams } from "react-router";
 

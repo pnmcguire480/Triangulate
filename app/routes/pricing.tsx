@@ -8,7 +8,7 @@ import { Link, useLoaderData, useSearchParams } from "react-router";
 import { Check, X, Crown, Zap, Coffee } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { Route } from "./+types/pricing";
-import { getUser } from "~/lib/auth";
+import { getUser } from '~/lib/auth.server';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request);

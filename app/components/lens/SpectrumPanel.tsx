@@ -4,7 +4,7 @@
 // ============================================================
 
 import { ExternalLink } from "lucide-react";
-import type { BiasTier } from "@prisma/client";
+import type { BiasTier } from "~/types";
 
 const TIER_ORDER: BiasTier[] = [
   "FAR_LEFT", "LEFT", "CENTER_LEFT", "CENTER",

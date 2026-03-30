@@ -3,7 +3,7 @@
 // Row of colored circles indicating active regions
 // ============================================================
 
-import type { Region } from "@prisma/client";
+import type { Region } from "~/types";
 
 type IndicatorSize = "sm" | "md";
 

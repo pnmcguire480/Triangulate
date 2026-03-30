@@ -3,7 +3,7 @@
 // The signature 7-segment bias tier selector
 // ============================================================
 
-import type { BiasTier } from "@prisma/client";
+import type { BiasTier } from "~/types";
 import { useFilters } from "~/lib/filters/FilterProvider";
 
 const BIAS_TIERS: { tier: BiasTier; label: string; color: string }[] = [

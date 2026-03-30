@@ -3,7 +3,7 @@
 // 7-segment horizontal bar in 3 modes: inline, compact, full
 // ============================================================
 
-import type { BiasTier } from "@prisma/client";
+import type { BiasTier } from "~/types";
 
 type BarMode = "inline" | "compact" | "full";
 

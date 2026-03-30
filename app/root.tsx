@@ -7,7 +7,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import { getUser } from "~/lib/auth";
+import { getUser } from "~/lib/auth.server";
 import AppShell from "~/components/shell/AppShell";
 import "./app.css";
 

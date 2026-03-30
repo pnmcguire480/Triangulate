@@ -1,5 +1,5 @@
 import { stripe } from "~/lib/stripe";
-import { prisma } from "~/lib/prisma";
+import { prisma } from "~/lib/prisma.server";
 import type { UserTier } from "@prisma/client";
 
 export async function action({ request }: { request: Request }) {

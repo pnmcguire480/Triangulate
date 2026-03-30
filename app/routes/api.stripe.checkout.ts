@@ -1,5 +1,5 @@
 import { stripe } from "~/lib/stripe";
-import { requireUser } from "~/lib/auth";
+import { requireUser } from '~/lib/auth.server';
 
 // Price IDs from Stripe — set these in environment variables
 // Create products in Stripe Dashboard first, then set:

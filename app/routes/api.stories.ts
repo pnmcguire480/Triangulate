@@ -1,4 +1,4 @@
-import { prisma } from "~/lib/prisma";
+import { prisma } from "~/lib/prisma.server";
 import { compareStories, type ComparisonResult } from "~/lib/comparisons";
 
 export async function loader({ request }: { request: Request }) {

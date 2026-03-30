@@ -3,7 +3,7 @@
 // Region pills with count badges, multi-select
 // ============================================================
 
-import type { Region } from "@prisma/client";
+import type { Region } from "~/types";
 import { useFilters } from "~/lib/filters/FilterProvider";
 
 const REGIONS: { region: Region; label: string; color: string }[] = [

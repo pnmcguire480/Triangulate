@@ -7,7 +7,7 @@ import { Link, useLoaderData } from 'react-router';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowLeft, Globe, Newspaper, MessageSquareText } from 'lucide-react';
 import type { Route } from './+types/story.$id';
-import { prisma } from '~/lib/prisma';
+import { prisma } from '~/lib/prisma.server';
 import TrustSignalBadge from '~/components/story/TrustSignalBadge';
 import LensPanel from '~/components/lens/LensPanel';
 import type { TrustSignal } from '~/types';

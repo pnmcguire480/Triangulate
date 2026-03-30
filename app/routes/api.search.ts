@@ -1,4 +1,4 @@
-import { prisma } from "~/lib/prisma";
+import { prisma } from "~/lib/prisma.server";
 import { Prisma } from "@prisma/client";
 import { checkRateLimit, getClientIP } from "~/lib/rate-limit";
 

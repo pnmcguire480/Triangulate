@@ -3,7 +3,7 @@
 // Serialize/deserialize FilterState to/from URL search params
 // ============================================================
 
-import type { BiasTier, Region, TrustSignal } from "@prisma/client";
+import type { BiasTier, Region, TrustSignal } from "~/types";
 import { DEFAULT_FILTER_STATE, type FilterState, type TimeHorizon, type FilterPreset } from "~/types/filters";
 
 const BIAS_TIERS: BiasTier[] = ["FAR_LEFT", "LEFT", "CENTER_LEFT", "CENTER", "CENTER_RIGHT", "RIGHT", "FAR_RIGHT"];

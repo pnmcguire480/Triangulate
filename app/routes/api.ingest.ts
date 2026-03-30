@@ -1,5 +1,5 @@
 import type { ContentType } from "@prisma/client";
-import { prisma } from "~/lib/prisma";
+import { prisma } from "~/lib/prisma.server";
 import { fetchFeed } from "~/lib/rss";
 import { timingSafeEqual } from "crypto";
 

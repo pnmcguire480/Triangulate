@@ -3,7 +3,7 @@
 // ============================================================
 
 import type { ReactNode } from "react";
-import type { UserTier } from "@prisma/client";
+import type { UserTier } from "~/types";
 import { hasCapability, type Capability } from "~/lib/capabilities";
 import UpgradeTeaser from "./UpgradeTeaser";
 

@@ -3,8 +3,8 @@
 // Sends branded email via Resend (or console in dev)
 // ============================================================
 
-import { prisma } from "~/lib/prisma";
-import { generateMagicToken } from "~/lib/auth";
+import { prisma } from "~/lib/prisma.server";
+import { generateMagicToken } from '~/lib/auth.server';
 import { sendMagicLinkEmail } from "~/lib/email";
 import { checkRateLimit, getClientIP } from "~/lib/rate-limit";
 

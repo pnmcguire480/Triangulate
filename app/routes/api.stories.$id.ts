@@ -1,4 +1,4 @@
-import { prisma } from "~/lib/prisma";
+import { prisma } from "~/lib/prisma.server";
 
 export async function loader({ params }: { params: { id: string } }) {
   const story = await prisma.story.findUnique({

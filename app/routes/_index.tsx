@@ -6,8 +6,8 @@
 
 import { Link, useLoaderData, useFetcher, useSearchParams, useNavigate } from 'react-router';
 import { format } from 'date-fns';
-import { prisma } from '~/lib/prisma';
-import { getUser } from '~/lib/auth';
+import { prisma } from '~/lib/prisma.server';
+import { getUser } from '~/lib/auth.server';
 import { getTodayUsage } from '~/lib/usage-tracking';
 import DashboardLayout from '~/components/panels/DashboardLayout';
 import WirePanel from '~/components/wire/WirePanel';

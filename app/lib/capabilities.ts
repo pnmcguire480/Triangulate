@@ -2,7 +2,7 @@
 // Triangulate — Feature Gating / Capabilities System
 // ============================================================
 
-import type { UserTier } from "@prisma/client";
+import type { UserTier } from "~/types";
 
 /**
  * Every gated capability in the app.

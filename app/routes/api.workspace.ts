@@ -3,8 +3,8 @@
 // POST: save workspace, GET: load workspaces
 // ============================================================
 
-import { prisma } from '~/lib/prisma';
-import { getUser } from '~/lib/auth';
+import { prisma } from '~/lib/prisma.server';
+import { getUser } from '~/lib/auth.server';
 
 export async function loader({ request }: { request: Request }) {
   const user = await getUser(request);

@@ -2,29 +2,83 @@
 // Triangulate - Core Type Definitions
 // ============================================================
 
-// --- Enums (re-exported from Prisma to avoid duplication) ---
+// --- Enums (mirrored from Prisma schema as string literals to avoid bundling @prisma/client) ---
 
-import {
-  TrustSignal,
-  BiasCategory,
-  BiasTier,
-  ContentType,
-  ClaimType,
-  DocType,
-  UserTier,
-  Region,
-} from "@prisma/client";
+export const TrustSignal = {
+  SINGLE_SOURCE: "SINGLE_SOURCE",
+  CONTESTED: "CONTESTED",
+  CONVERGED: "CONVERGED",
+  SOURCE_BACKED: "SOURCE_BACKED",
+  INSTITUTIONALLY_VALIDATED: "INSTITUTIONALLY_VALIDATED",
+} as const;
+export type TrustSignal = (typeof TrustSignal)[keyof typeof TrustSignal];
 
-export {
-  TrustSignal,
-  BiasCategory,
-  BiasTier,
-  ContentType,
-  ClaimType,
-  DocType,
-  UserTier,
-  Region,
-};
+export const BiasCategory = {
+  LEFT: "LEFT",
+  CENTER_LEFT: "CENTER_LEFT",
+  CENTER: "CENTER",
+  CENTER_RIGHT: "CENTER_RIGHT",
+  RIGHT: "RIGHT",
+} as const;
+export type BiasCategory = (typeof BiasCategory)[keyof typeof BiasCategory];
+
+export const BiasTier = {
+  FAR_LEFT: "FAR_LEFT",
+  LEFT: "LEFT",
+  CENTER_LEFT: "CENTER_LEFT",
+  CENTER: "CENTER",
+  CENTER_RIGHT: "CENTER_RIGHT",
+  RIGHT: "RIGHT",
+  FAR_RIGHT: "FAR_RIGHT",
+} as const;
+export type BiasTier = (typeof BiasTier)[keyof typeof BiasTier];
+
+export const ContentType = {
+  REPORTING: "REPORTING",
+  COMMENTARY: "COMMENTARY",
+  MIXED: "MIXED",
+  UNKNOWN: "UNKNOWN",
+} as const;
+export type ContentType = (typeof ContentType)[keyof typeof ContentType];
+
+export const ClaimType = {
+  FACTUAL: "FACTUAL",
+  STATISTICAL: "STATISTICAL",
+  QUOTE: "QUOTE",
+  EVENT: "EVENT",
+  LEGAL: "LEGAL",
+} as const;
+export type ClaimType = (typeof ClaimType)[keyof typeof ClaimType];
+
+export const DocType = {
+  GOVERNMENT: "GOVERNMENT",
+  COURT: "COURT",
+  ACADEMIC: "ACADEMIC",
+  DATA: "DATA",
+  OTHER: "OTHER",
+} as const;
+export type DocType = (typeof DocType)[keyof typeof DocType];
+
+export const UserTier = {
+  FREE: "FREE",
+  STANDARD: "STANDARD",
+  PREMIUM: "PREMIUM",
+} as const;
+export type UserTier = (typeof UserTier)[keyof typeof UserTier];
+
+export const Region = {
+  US: "US",
+  UK: "UK",
+  EUROPE: "EUROPE",
+  MIDDLE_EAST: "MIDDLE_EAST",
+  ASIA_PACIFIC: "ASIA_PACIFIC",
+  CANADA: "CANADA",
+  LATIN_AMERICA: "LATIN_AMERICA",
+  AFRICA: "AFRICA",
+  OCEANIA: "OCEANIA",
+  GLOBAL: "GLOBAL",
+} as const;
+export type Region = (typeof Region)[keyof typeof Region];
 
 // --- Re-export filter and workspace types ---
 export type { FilterState, FacetCounts, TimeHorizon, FilterPreset } from "./filters";

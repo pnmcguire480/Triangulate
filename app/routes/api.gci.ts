@@ -4,7 +4,7 @@
 // ============================================================
 
 import type { Route } from "./+types/api.gci";
-import { prisma } from "~/lib/prisma";
+import { prisma } from "~/lib/prisma.server";
 import { computeGCI } from "~/lib/gci";
 import { timingSafeEqual } from "crypto";
 

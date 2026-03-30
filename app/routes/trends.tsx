@@ -5,7 +5,7 @@
 
 import { useLoaderData } from 'react-router';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { prisma } from '~/lib/prisma';
+import { prisma } from '~/lib/prisma.server';
 
 export async function loader() {
   // GCI history (last 30 days)

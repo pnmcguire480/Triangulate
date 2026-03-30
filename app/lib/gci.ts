@@ -3,7 +3,7 @@
 // Global Convergence Index: breadth (40%) + depth (35%) - contestation (25%)
 // ============================================================
 
-import { prisma } from "~/lib/prisma";
+import { prisma } from "~/lib/prisma.server";
 
 interface GCIComponents {
   score: number;

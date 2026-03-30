@@ -4,7 +4,7 @@
 // Premium+ feature
 // ============================================================
 
-import { getUser } from '~/lib/auth';
+import { getUser } from '~/lib/auth.server';
 import { hasCapability } from '~/lib/capabilities';
 
 export async function action({ request }: { request: Request }) {

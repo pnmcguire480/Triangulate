@@ -2,7 +2,7 @@
 // Triangulate — Filter Type Definitions
 // ============================================================
 
-import type { BiasTier, Region, TrustSignal } from "@prisma/client";
+import type { BiasTier, Region, TrustSignal } from "~/types";
 
 /**
  * The complete state of all filters applied to the feed.

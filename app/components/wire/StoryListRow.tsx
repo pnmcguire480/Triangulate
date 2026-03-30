@@ -5,7 +5,7 @@
 
 import { memo } from "react";
 import { formatDistanceToNow } from "date-fns";
-import type { BiasTier, Region, TrustSignal } from "@prisma/client";
+import type { BiasTier, Region, TrustSignal } from "~/types";
 import { TRUST_SIGNAL_CONFIG } from "~/types";
 import { cn } from "~/lib/utils";
 

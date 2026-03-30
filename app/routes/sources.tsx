@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { Link, useLoaderData } from 'react-router';
 import { Database, Search } from 'lucide-react';
-import { prisma } from '~/lib/prisma';
+import { prisma } from '~/lib/prisma.server';
 
 export async function loader() {
   const sources = await prisma.source.findMany({
