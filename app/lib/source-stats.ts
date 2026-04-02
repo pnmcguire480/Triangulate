@@ -3,7 +3,7 @@
 // Per-source claims totals and confirmation rates
 // ============================================================
 
-import { prisma } from './prisma';
+import { prisma } from './prisma.server';
 
 /**
  * Compute monthly stats for all sources.

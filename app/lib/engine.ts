@@ -9,7 +9,7 @@
 //  geometry of convergence across adversarial ones."
 // ============================================================
 
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.server";
 import { extractEntities, type Entity } from "./entities";
 
 const LOOKBACK_HOURS = 72;
