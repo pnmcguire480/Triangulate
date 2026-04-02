@@ -87,16 +87,19 @@ enum Region {
 // ─────────────────────────────────────────────
 
 model Source {
-  id           String      @id @default(uuid())
-  name         String      @unique
-  url          String      @unique
-  rssFeedUrl   String
-  biasCategory BiasCategory
-  biasTier     BiasTier
-  region       Region      @default(US)
-  affiliateUrl String?
-  isActive     Boolean     @default(true)
-  createdAt    DateTime    @default(now())
+  id                    String      @id @default(uuid())
+  name                  String      @unique
+  url                   String      @unique
+  rssFeedUrl            String
+  biasCategory          BiasCategory
+  biasTier              BiasTier
+  region                Region      @default(US)
+  affiliateUrl          String?
+  isActive              Boolean     @default(true)
+  isWireService         Boolean     @default(false)
+  consecutiveFailures   Int         @default(0)
+  lastFetchedAt         DateTime?
+  createdAt             DateTime    @default(now())
 
   articles     Article[]
   monthlyStats SourceMonthlyStats[]
@@ -104,11 +107,25 @@ model Source {
   @@map("sources")
 }
 
+enum StoryTopic {
+  POLITICS
+  ECONOMY
+  WORLD
+  TECHNOLOGY
+  SCIENCE
+  HEALTH
+  ENVIRONMENT
+  LEGAL
+  OTHER
+}
+
 model Story {
   id              String      @id @default(uuid())
   generatedTitle  String
   summary         String?
+  topic           StoryTopic?
   trustSignal     TrustSignal @default(SINGLE_SOURCE)
+  failureCount    Int         @default(0)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   lastAnalyzedAt  DateTime?
@@ -120,19 +137,22 @@ model Story {
   @@index([createdAt])
   @@index([lastAnalyzedAt])
   @@index([trustSignal])
+  @@index([topic])
   @@map("stories")
 }
 
 model Article {
-  id           String      @id @default(uuid())
-  sourceId     String
-  title        String
-  url          String      @unique
-  publishedAt  DateTime
-  contentType  ContentType @default(UNKNOWN)
-  rawText      String?
-  storyId      String?
-  createdAt    DateTime    @default(now())
+  id              String      @id @default(uuid())
+  sourceId        String
+  title           String
+  url             String      @unique
+  publishedAt     DateTime
+  contentType     ContentType @default(UNKNOWN)
+  contentSnippet  String?
+  contentHash     String?
+  rawText         String?
+  storyId         String?
+  createdAt       DateTime    @default(now())
 
   source       Source      @relation(fields: [sourceId], references: [id])
   story        Story?      @relation(fields: [storyId], references: [id])
@@ -141,21 +161,35 @@ model Article {
   @@index([sourceId])
   @@index([storyId])
   @@index([publishedAt])
+  @@index([contentHash])
   @@map("articles")
 }
 
+enum ClaimLifecycle {
+  EMERGING
+  DEVELOPING
+  ESTABLISHED
+  CONTESTED
+  CORRECTED
+  PERSISTENT
+}
+
 model Claim {
-  id               String    @id @default(uuid())
+  id               String         @id @default(uuid())
   storyId          String
   claimText        String
-  claimType        ClaimType @default(FACTUAL)
-  convergenceScore Float     @default(0)
-  createdAt        DateTime  @default(now())
+  claimType        ClaimType      @default(FACTUAL)
+  convergenceScore Float          @default(0)
+  confidence       String?        // AI Round Table confidence: HIGH | MEDIUM | LOW
+  lifecycle        ClaimLifecycle @default(EMERGING)
+  firstSeenAt      DateTime       @default(now())
+  createdAt        DateTime       @default(now())
 
   story            Story     @relation(fields: [storyId], references: [id])
   sources          ClaimSource[]
 
   @@index([storyId])
+  @@index([lifecycle])
   @@map("claims")
 }
 

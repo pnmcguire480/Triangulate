@@ -1,6 +1,6 @@
 // prisma/seed.ts
 // Triangulate — News Convergence Engine
-// Chunk 2: Source seeding — 50+ outlets across full political spectrum and global regions
+// Chunk 2: Source seeding — 75+ outlets across full political spectrum and global regions
 
 import { PrismaClient, BiasCategory, BiasTier, Region } from '@prisma/client'
 
@@ -135,6 +135,7 @@ const sources = [
     biasTier: BiasTier.CENTER,
     region: Region.US,
     affiliateUrl: null,
+    isWireService: true,
     // AP killed their native RSS; Google News RSS filtered by site is the fallback
   },
   {
@@ -145,6 +146,7 @@ const sources = [
     biasTier: BiasTier.CENTER,
     region: Region.US,
     affiliateUrl: null,
+    isWireService: true,
     // Reuters blocks direct RSS; Google News RSS filtered by site is the fallback
   },
   {
@@ -569,6 +571,7 @@ const sources = [
     biasTier: BiasTier.CENTER,
     region: Region.GLOBAL,
     affiliateUrl: null,
+    isWireService: true,
     // Agence France-Presse — wire service, no native public RSS
   },
   {
@@ -579,6 +582,255 @@ const sources = [
     biasTier: BiasTier.CENTER,
     region: Region.GLOBAL,
     affiliateUrl: null,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // LATIN AMERICA SOURCES (5)
+  // Bias calibrated to regional center
+  // English-language outlets covering LatAm
+  // ═══════════════════════════════════════════════════════════════════
+
+  {
+    name: 'Buenos Aires Herald',
+    url: 'https://buenosairesherald.com',
+    rssFeedUrl: 'https://buenosairesherald.com/feed/',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.LATIN_AMERICA,
+    affiliateUrl: null,
+    // Argentina — English-language, centrist
+  },
+  {
+    name: 'Mexico News Daily',
+    url: 'https://mexiconewsdaily.com',
+    rssFeedUrl: 'https://mexiconewsdaily.com/feed/',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.LATIN_AMERICA,
+    affiliateUrl: null,
+    // Mexico — English-language news
+  },
+  {
+    name: 'Brazil Reports',
+    url: 'https://brazilreports.com',
+    rssFeedUrl: 'https://news.google.com/rss/search?q=site:brazilreports.com&hl=en-US&gl=US&ceid=US:en',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.LATIN_AMERICA,
+    affiliateUrl: null,
+    // Brazil — English-language coverage
+  },
+  {
+    name: 'Merco Press',
+    url: 'https://en.mercopress.com',
+    rssFeedUrl: 'https://en.mercopress.com/rss',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.LATIN_AMERICA,
+    affiliateUrl: null,
+    // South American news agency — Montevideo-based
+  },
+  {
+    name: 'TeleSUR English',
+    url: 'https://www.telesurenglish.net',
+    rssFeedUrl: 'https://www.telesurenglish.net/rss/all.xml',
+    biasCategory: BiasCategory.LEFT,
+    biasTier: BiasTier.LEFT,
+    region: Region.LATIN_AMERICA,
+    affiliateUrl: null,
+    // Venezuela-based; left-leaning pan-Latin American
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // AFRICA SOURCES (5)
+  // Bias calibrated to regional center
+  // English-language outlets covering Africa
+  // ═══════════════════════════════════════════════════════════════════
+
+  {
+    name: 'Mail & Guardian',
+    url: 'https://mg.co.za',
+    rssFeedUrl: 'https://mg.co.za/feed/',
+    biasCategory: BiasCategory.CENTER_LEFT,
+    biasTier: BiasTier.CENTER_LEFT,
+    region: Region.AFRICA,
+    affiliateUrl: null,
+    // South Africa — progressive investigative journalism
+  },
+  {
+    name: 'Daily Nation',
+    url: 'https://nation.africa',
+    rssFeedUrl: 'https://nation.africa/rss.xml',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.AFRICA,
+    affiliateUrl: null,
+    // Kenya — largest daily in East Africa
+    isActive: false, // RSS URL uncertain — verify before enabling
+  },
+  {
+    name: 'The East African',
+    url: 'https://www.theeastafrican.co.ke',
+    rssFeedUrl: 'https://www.theeastafrican.co.ke/rss.xml',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.AFRICA,
+    affiliateUrl: null,
+    // Pan-East African weekly — Nairobi-based
+    isActive: false, // RSS URL uncertain — verify before enabling
+  },
+  {
+    name: 'AllAfrica',
+    url: 'https://allafrica.com',
+    rssFeedUrl: 'https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.AFRICA,
+    affiliateUrl: null,
+    // Pan-African aggregator — 100+ African news sources
+  },
+  {
+    name: 'Premium Times',
+    url: 'https://www.premiumtimesng.com',
+    rssFeedUrl: 'https://www.premiumtimesng.com/feed',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.AFRICA,
+    affiliateUrl: null,
+    // Nigeria — investigative, independent
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ADDITIONAL MIDDLE EAST SOURCES (3)
+  // ═══════════════════════════════════════════════════════════════════
+
+  {
+    name: 'Haaretz',
+    url: 'https://www.haaretz.com',
+    rssFeedUrl: 'https://www.haaretz.com/cmlink/1.4614869',
+    biasCategory: BiasCategory.CENTER_LEFT,
+    biasTier: BiasTier.CENTER_LEFT,
+    region: Region.MIDDLE_EAST,
+    affiliateUrl: 'https://www.haaretz.com/misc/subscribe-page',
+    // Israel — centre-left, critical of government
+  },
+  {
+    name: 'Middle East Eye',
+    url: 'https://www.middleeasteye.net',
+    rssFeedUrl: 'https://www.middleeasteye.net/rss',
+    biasCategory: BiasCategory.CENTER_LEFT,
+    biasTier: BiasTier.LEFT,
+    region: Region.MIDDLE_EAST,
+    affiliateUrl: null,
+    // London-based; progressive-leaning on Middle East affairs
+  },
+  {
+    name: 'The National',
+    url: 'https://www.thenationalnews.com',
+    rssFeedUrl: 'https://www.thenationalnews.com/rss',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.MIDDLE_EAST,
+    affiliateUrl: null,
+    // UAE — Abu Dhabi-based, English-language
+    isActive: false, // RSS URL uncertain — verify before enabling
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ADDITIONAL EUROPE SOURCES (3)
+  // ═══════════════════════════════════════════════════════════════════
+
+  {
+    name: 'Politico Europe',
+    url: 'https://www.politico.eu',
+    rssFeedUrl: 'https://www.politico.eu/feed/',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.EUROPE,
+    affiliateUrl: null,
+    // Brussels-based — EU politics and policy
+  },
+  {
+    name: 'The Moscow Times',
+    url: 'https://www.themoscowtimes.com',
+    rssFeedUrl: 'https://www.themoscowtimes.com/rss/news',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER_LEFT,
+    region: Region.EUROPE,
+    affiliateUrl: null,
+    // Russia — independent English-language (now exiled from Moscow)
+  },
+  {
+    name: 'Kyiv Independent',
+    url: 'https://kyivindependent.com',
+    rssFeedUrl: 'https://kyivindependent.com/feed/',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.EUROPE,
+    affiliateUrl: null,
+    // Ukraine — independent English-language
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ADDITIONAL ASIA-PACIFIC SOURCES (3)
+  // ═══════════════════════════════════════════════════════════════════
+
+  {
+    name: 'Nikkei Asia',
+    url: 'https://asia.nikkei.com',
+    rssFeedUrl: 'https://asia.nikkei.com/rss/feed/nar',
+    biasCategory: BiasCategory.CENTER_RIGHT,
+    biasTier: BiasTier.CENTER_RIGHT,
+    region: Region.ASIA_PACIFIC,
+    affiliateUrl: null,
+    // Japan — business-focused, center-right
+  },
+  {
+    name: 'The Straits Times',
+    url: 'https://www.straitstimes.com',
+    rssFeedUrl: 'https://www.straitstimes.com/news/asia/rss.xml',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.ASIA_PACIFIC,
+    affiliateUrl: null,
+    // Singapore — paper of record
+    isActive: false, // RSS URL uncertain — verify before enabling
+  },
+  {
+    name: 'Taipei Times',
+    url: 'https://www.taipeitimes.com',
+    rssFeedUrl: 'https://www.taipeitimes.com/xml/index.rss',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.ASIA_PACIFIC,
+    affiliateUrl: null,
+    // Taiwan — English-language daily
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ADDITIONAL US SOURCES (2)
+  // Filling spectrum gaps
+  // ═══════════════════════════════════════════════════════════════════
+
+  {
+    name: 'Reason',
+    url: 'https://reason.com',
+    rssFeedUrl: 'https://reason.com/feed/',
+    biasCategory: BiasCategory.CENTER_RIGHT,
+    biasTier: BiasTier.RIGHT,
+    region: Region.US,
+    affiliateUrl: null,
+    // Libertarian — right on economics, cross-spectrum on civil liberties
+  },
+  {
+    name: 'Bloomberg',
+    url: 'https://www.bloomberg.com',
+    rssFeedUrl: 'https://news.google.com/rss/search?q=site:bloomberg.com&hl=en-US&gl=US&ceid=US:en',
+    biasCategory: BiasCategory.CENTER,
+    biasTier: BiasTier.CENTER,
+    region: Region.US,
+    affiliateUrl: 'https://www.bloomberg.com/subscriptions',
+    // Business-center — slightly right on economics, center on politics
   },
 ]
 
@@ -601,6 +853,7 @@ async function main() {
           region: source.region,
           affiliateUrl: source.affiliateUrl,
           isActive: (source as any).isActive ?? true,
+          isWireService: (source as any).isWireService ?? false,
         },
         create: {
           name: source.name,
@@ -611,6 +864,7 @@ async function main() {
           region: source.region,
           affiliateUrl: source.affiliateUrl,
           isActive: (source as any).isActive ?? true,
+          isWireService: (source as any).isWireService ?? false,
         },
       })
       created++
@@ -628,7 +882,7 @@ async function main() {
   // Print spectrum summary by region
   const regions = [
     'US', 'UK', 'EUROPE', 'MIDDLE_EAST', 'ASIA_PACIFIC',
-    'CANADA', 'GLOBAL',
+    'CANADA', 'LATIN_AMERICA', 'AFRICA', 'GLOBAL',
   ] as Region[]
 
   const tiers = [

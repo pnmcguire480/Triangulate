@@ -2,9 +2,9 @@
   "$schema": "paladin-config",
   "version": "1.0",
   "project": {
-    "name": "",
-    "type": "auto",
-    "description": ""
+    "name": "Triangulate",
+    "type": "react-vite",
+    "description": "Global news convergence engine — React Router v7 + Vite + Tailwind v4 + Prisma"
   },
   "tiers": {
     "skip": [],

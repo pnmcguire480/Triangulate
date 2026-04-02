@@ -53,3 +53,25 @@ angle ranking and format matching based on what's worked before.
 19. **Accessibility is architecture, not decoration.** F6 panel cycling, ARIA live regions on filter changes, role="meter" on convergence bars, keyboard shortcuts with modifier keys to avoid screen reader conflicts. Build it in from the start.
 
 20. **The dual aesthetic is a feature, not a theme.** Light mode (Press Room) and dark mode (War Room) are two personalities of the same product. The dateline typography swap (DM Sans → JetBrains Mono) is a signature element. Treat theme as identity, not preference.
+
+### Run 3 — 2026-03-30 (Pipeline Convergence Audit + Journalist Brainstorm)
+
+21. **Superlinear > linear for ideological distance.** Agreement between FAR_LEFT and FAR_RIGHT (distance=6, weight=14.7x) is categorically different from LEFT + CENTER_LEFT (distance=1, weight=1x). Linear distance formulas undervalue the most powerful convergence signals. Use alpha=1.5 exponent.
+
+22. **Regional independence is not binary.** US + Canada share media ecosystems (independence=0.2). US + Middle East are genuinely independent (independence=0.9). A flat "region bonus" misses this. Use the 10x10 independence matrix.
+
+23. **Wire services inflate convergence — filter them.** Reuters/AP/AFP on CNN, BBC, and Fox looks like "3 diverse sources agree" but it's 1 wire report republished 3x. Always filter wire syndications from convergence scoring. Mark sources with `isWireService: true`.
+
+24. **Stories must re-analyze when new evidence arrives.** A story that grows from 2 to 12 articles should not keep its 2-article convergence score. Reset `lastAnalyzedAt` when new articles join existing stories.
+
+25. **Apply the subtraction test to every journalist feature.** Don't ask "what can we add?" Ask "what 45-minute manual task does this eliminate?" Evidence Package eliminates source compilation. Citations eliminate formatting. Alerts eliminate daily re-checking. If a feature doesn't subtract work, don't build it.
+
+26. **Export-first, plugin-later for tool integrations.** For Obsidian and NotebookLM, ship structured export (ZIP of Markdown with YAML frontmatter) before building custom plugins. Journalists need to start using it immediately, not wait for a plugin release cycle.
+
+27. **Claim lifecycle is a trust signal for users.** EMERGING, DEVELOPING, ESTABLISHED, PERSISTENT — these states communicate uncertainty honestly. "This claim is EMERGING" vs "PERSISTENT across 30 sources for 2 weeks" builds trust through transparency.
+
+28. **Conditional AI calls save 50%+ of API cost.** Skip dedup AI calls when rawClaims.length <= 3 (use string similarity). Skip primary doc detection when headlines contain no legal/government keywords. These conditions eliminate most unnecessary API calls without sacrificing quality.
+
+29. **Track source health automatically.** Sources that fail 5 consecutive fetches should auto-deactivate. Sources that recover should auto-reactivate. Don't wait for a human to notice a broken RSS feed.
+
+30. **No competitor does claim-level convergence.** Ground News maps coverage. AllSides shows perspectives. Google clusters stories. NewsGuard rates sources. Nobody extracts claims, matches them across ideologically opposed sources, and scores convergence weighted by ideological distance. This is the moat — protect it.

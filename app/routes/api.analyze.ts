@@ -3,6 +3,7 @@ import {
   extractClaims,
   deduplicateClaims,
   detectPrimaryDocs,
+  classifyTopic,
 } from "~/lib/claims";
 import { calculateConvergenceScore, isContested } from "~/lib/convergence";
 import { calculateTrustSignal } from "~/lib/signals";
@@ -10,6 +11,7 @@ import { computeSourceMonthlyStats } from "~/lib/source-stats";
 import { timingSafeEqual } from "crypto";
 
 const BATCH_SIZE = 20;
+const MAX_FAILURES = 3;
 
 export async function loader({ request }: { request: Request }) {
   if (!process.env.CRON_SECRET) {
@@ -22,11 +24,16 @@ export async function loader({ request }: { request: Request }) {
   }
 
   try {
-    // Grab unanalyzed stories, prioritize multi-source
+    // Grab unanalyzed stories, skip those that have failed too many times
     const allUnanalyzed = await prisma.story.findMany({
-      where: { lastAnalyzedAt: null },
+      where: {
+        lastAnalyzedAt: null,
+        failureCount: { lt: MAX_FAILURES },
+      },
       include: {
-        articles: { include: { source: true } },
+        articles: {
+          include: { source: true },
+        },
         _count: { select: { articles: true } },
       },
       take: 200,
@@ -56,13 +63,25 @@ export async function loader({ request }: { request: Request }) {
     for (const story of multiSourceStories) {
       try {
         console.log(`[analyze] Analyzing story: ${story.generatedTitle.slice(0, 60)} (${story.articles.length} articles)`);
+
+        // Clear old claims if this is a re-analysis (story had articles added)
+        const existingClaims = await prisma.claim.count({ where: { storyId: story.id } });
+        if (existingClaims > 0) {
+          await prisma.claimSource.deleteMany({
+            where: { claim: { storyId: story.id } },
+          });
+          await prisma.claim.deleteMany({ where: { storyId: story.id } });
+          console.log(`[analyze] Cleared ${existingClaims} old claims for re-analysis`);
+        }
+
         const articlesForClaims = story.articles.map((a) => ({
           id: a.id,
           title: a.title,
           sourceId: a.sourceId,
+          contentSnippet: (a as any).contentSnippet as string | null,
         }));
 
-        // Step 1: Extract claims
+        // Step 1: Extract claims (now uses contentSnippet)
         const rawClaims = await extractClaims(articlesForClaims);
         console.log(`[analyze] Extracted ${rawClaims.length} claims from "${story.generatedTitle.slice(0, 50)}"`);
         if (rawClaims.length === 0) {
@@ -73,30 +92,48 @@ export async function loader({ request }: { request: Request }) {
           continue;
         }
 
-        // Step 2: Deduplicate semantically
+        // Step 2: Deduplicate semantically (skips AI for small sets)
         const deduped = await deduplicateClaims(rawClaims);
 
-        // Step 3: Score convergence
+        // Step 3: Score convergence with wire service awareness
         const articleMeta = new Map(
           story.articles.map((a) => [
             a.id,
-            { biasTier: a.source.biasTier, region: a.source.region },
+            {
+              biasTier: a.source.biasTier,
+              region: a.source.region,
+              isWireService: (a.source as any).isWireService as boolean,
+            },
           ])
         );
 
+        // Detect wire syndication: articles from wire services should not
+        // count as independent sources for convergence scoring
+        const wireArticleIds = new Set(
+          story.articles
+            .filter((a) => (a.source as any).isWireService)
+            .map((a) => a.id)
+        );
+
         for (const claim of deduped) {
-          const tiers = claim.sources
+          // Filter out wire service duplicates from convergence calculation
+          const independentSources = claim.sources.filter(
+            (s) => !wireArticleIds.has(s.articleId)
+          );
+
+          // Use independent sources for scoring, but keep all for attribution
+          const tiers = independentSources
             .map((s) => articleMeta.get(s.articleId)?.biasTier)
             .filter(Boolean) as string[];
 
-          const regions = claim.sources
+          const regions = independentSources
             .map((s) => articleMeta.get(s.articleId)?.region)
             .filter(Boolean) as string[];
 
           const supportFlags = claim.sources.map((s) => s.supports);
           const contested = isContested(supportFlags);
 
-          // Contested claims get a weighted score, not a binary 0
+          // Contested claims get a weighted score
           const supportingCount = supportFlags.filter((s) => s).length;
           const totalCount = supportFlags.length;
           const rawScore = calculateConvergenceScore(tiers, regions);
@@ -104,12 +141,23 @@ export async function loader({ request }: { request: Request }) {
             ? Math.round(rawScore * (supportingCount / totalCount) * 100) / 100
             : rawScore;
 
+          // Determine lifecycle state
+          const sourceCount = independentSources.length;
+          const lifecycle = contested
+            ? 'CONTESTED'
+            : sourceCount >= 10
+              ? 'ESTABLISHED'
+              : sourceCount >= 3
+                ? 'DEVELOPING'
+                : 'EMERGING';
+
           const createdClaim = await prisma.claim.create({
             data: {
               storyId: story.id,
               claimText: claim.claimText,
               claimType: claim.claimType,
               convergenceScore,
+              lifecycle,
               sources: {
                 create: claim.sources.map((s) => ({
                   articleId: s.articleId,
@@ -123,7 +171,7 @@ export async function loader({ request }: { request: Request }) {
           if (createdClaim) claimsCreated++;
         }
 
-        // Step 4: Detect primary docs
+        // Step 4: Detect primary docs (conditional — only when keywords present)
         const docs = await detectPrimaryDocs(articlesForClaims);
         for (const doc of docs) {
           if (doc.title) {
@@ -139,7 +187,10 @@ export async function loader({ request }: { request: Request }) {
           }
         }
 
-        // Step 5: Update trust signal
+        // Step 5: Classify topic
+        const topic = await classifyTopic(articlesForClaims);
+
+        // Step 6: Update trust signal
         const storyClaims = await prisma.claim.findMany({
           where: { storyId: story.id },
           select: { convergenceScore: true },
@@ -170,13 +221,18 @@ export async function loader({ request }: { request: Request }) {
           data: {
             trustSignal,
             lastAnalyzedAt: new Date(),
+            ...(topic && { topic: topic as any }),
           },
         });
 
         storiesAnalyzed++;
       } catch (err) {
         console.error(`Failed to analyze story ${story.id}:`, err);
-        // Do NOT set lastAnalyzedAt — leave null so story retries next cycle
+        // Increment failure count instead of infinite retry
+        await prisma.story.update({
+          where: { id: story.id },
+          data: { failureCount: { increment: 1 } },
+        });
       }
     }
 

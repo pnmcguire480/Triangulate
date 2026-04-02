@@ -1,7 +1,7 @@
 import type { ContentType } from "@prisma/client";
 import { prisma } from "~/lib/prisma.server";
 import { fetchFeed } from "~/lib/rss";
-import { timingSafeEqual } from "crypto";
+import { timingSafeEqual, createHash } from "crypto";
 
 const COMMENTARY_PATH_RE =
   /\/(opinion|editorial|commentary|column|analysis)(\/|$)/i;
@@ -39,18 +39,31 @@ export async function loader({ request }: { request: Request }) {
         const items = await fetchFeed(source.rssFeedUrl);
         const rows = items
           .filter((item) => item.link)
-          .map((item) => ({
-            sourceId: source.id,
-            title: item.title,
-            url: item.link,
-            publishedAt: new Date(item.pubDate),
-            contentType: classifyUrl(item.link),
-          }));
+          .map((item) => {
+            const snippet = (item.contentSnippet || "").slice(0, 2000);
+            const hashInput = `${item.title}|${snippet.slice(0, 200)}`.toLowerCase().replace(/\s+/g, " ");
+            return {
+              sourceId: source.id,
+              title: item.title,
+              url: item.link,
+              publishedAt: new Date(item.pubDate),
+              contentType: classifyUrl(item.link),
+              contentSnippet: snippet || null,
+              contentHash: createHash("sha256").update(hashInput).digest("hex"),
+            };
+          });
         if (rows.length === 0) return 0;
         const result = await prisma.article.createMany({
           data: rows,
           skipDuplicates: true,
         });
+
+        // Track source health: reset failures on success
+        await prisma.source.update({
+          where: { id: source.id },
+          data: { consecutiveFailures: 0, lastFetchedAt: new Date() },
+        });
+
         return result.count;
       })
     );
@@ -62,6 +75,21 @@ export async function loader({ request }: { request: Request }) {
       } else {
         const message = r.reason instanceof Error ? r.reason.message : String(r.reason);
         errors.push(`${batch[j].name}: ${message}`);
+
+        // Track source failures — auto-deactivate after 5 consecutive
+        try {
+          const updated = await prisma.source.update({
+            where: { id: batch[j].id },
+            data: { consecutiveFailures: { increment: 1 }, lastFetchedAt: new Date() },
+          });
+          if (updated.consecutiveFailures >= 5) {
+            await prisma.source.update({
+              where: { id: batch[j].id },
+              data: { isActive: false },
+            });
+            errors.push(`${batch[j].name}: Auto-deactivated after 5 consecutive failures`);
+          }
+        } catch { /* best effort */ }
       }
     }
   }

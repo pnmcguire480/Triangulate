@@ -74,8 +74,8 @@ run_check "TypeScript check" "npx tsc --noEmit 2>&1"
 # OPTIONAL CHECKS — uncomment what applies to your project
 # =============================================================================
 
-# Check 5: Tests pass (if you have tests)
-# run_check "npm test" "npm test -- --watchAll=false 2>&1"
+# Check 5: Tests pass
+run_check "npm test" "npm test 2>&1"
 
 # Check 6: Supabase types are fresh (if using generated types)
 # This checks that the types file exists — doesn't regenerate
