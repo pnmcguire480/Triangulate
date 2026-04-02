@@ -166,7 +166,7 @@ Vitest path alias issue (~/types not resolving). 5-min fix: add tsconfigPaths() 
 - DB seed: `npx prisma db seed`
 - DB studio: `npx prisma studio`
 
-### Source Database (55+ outlets, 7-tier spectrum, 7 regions — domain secured)
+### Source Database (76 outlets, 7-tier spectrum, 10 regions — domain secured)
 
 | Region | Count | Key Outlets |
 |--------|-------|-------------|

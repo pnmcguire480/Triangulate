@@ -59,8 +59,8 @@ Triangulate ingests 55+ news outlets across the political spectrum (FAR_LEFT →
 ### What Works Right Now
 
 - **Framework:** React Router v7 (Remix) + Vite 7 + Tailwind v4
-- **Database:** Neon PostgreSQL, 11 models, 12 enums, v2 migration applied
-- **Sources:** 76 outlets across 7 bias tiers and 9 global regions (incl. Latin America, Africa)
+- **Database:** Neon PostgreSQL, 10 models, 10 enums, v2 migration applied
+- **Sources:** 76 outlets across 7 bias tiers and 10 regions (US, UK, Europe, Middle East, Asia-Pacific, Canada, Latin America, Africa, Oceania, Global)
 - **Pipeline:** /api/ingest → /api/cluster → /api/analyze → /api/gci + source stats
 - **AI:** Multi-provider system (Claude primary, Gemini/DeepSeek/Grok available)
 - **App Shell:** TopBar + CommandPalette (Ctrl+K), Sidebar, StatusBar (live health polling), BottomTabBar, AppShell, DashboardLayout
