@@ -4,7 +4,7 @@
 // ============================================================
 
 import { useState } from "react";
-import { Link, useLoaderData, useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Check, X, Crown, Zap, Coffee } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { Route } from "./+types/pricing";
@@ -138,6 +138,11 @@ export default function Pricing({ loaderData }: Route.ComponentProps) {
       {checkoutCanceled && (
         <div className="mb-6 px-4 py-3 rounded-sm border border-border bg-surface text-sm text-ink-muted text-center">
           Checkout was cancelled. Ready when you are.
+        </div>
+      )}
+      {checkoutError && (
+        <div className="mb-6 px-4 py-3 rounded-sm border border-red-500/20 bg-red-500/6 text-sm text-red-600 dark:text-red-400 font-medium text-center">
+          {checkoutError}
         </div>
       )}
 

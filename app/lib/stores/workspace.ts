@@ -68,7 +68,7 @@ function scheduleSyncToServer(state: WorkspaceState) {
 
 export const useWorkspaceStore = create<WorkspaceStore>()(
   persist(
-    (set, get) => ({
+    (set, _get) => ({
       ...DEFAULT_WORKSPACE,
 
       toggleSidebar: () => {

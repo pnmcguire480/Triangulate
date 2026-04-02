@@ -37,14 +37,11 @@ export function compareStories(
   if (delta > 0.05) direction = 'rising';
   if (delta < -0.05) direction = 'falling';
 
-  let narrative = '';
-  if (direction === 'rising') {
-    narrative = `Convergence on "${topic}" rose from ${Math.round(previous.convergenceScore * 100)}% to ${Math.round(current.convergenceScore * 100)}%. Sources are increasingly agreeing on the facts.`;
-  } else if (direction === 'falling') {
-    narrative = `Convergence on "${topic}" fell from ${Math.round(previous.convergenceScore * 100)}% to ${Math.round(current.convergenceScore * 100)}%. New information may be creating disagreement.`;
-  } else {
-    narrative = `Convergence on "${topic}" remains stable at ${Math.round(current.convergenceScore * 100)}%.`;
-  }
+  const narrative = direction === 'rising'
+    ? `Convergence on "${topic}" rose from ${Math.round(previous.convergenceScore * 100)}% to ${Math.round(current.convergenceScore * 100)}%. Sources are increasingly agreeing on the facts.`
+    : direction === 'falling'
+    ? `Convergence on "${topic}" fell from ${Math.round(previous.convergenceScore * 100)}% to ${Math.round(current.convergenceScore * 100)}%. New information may be creating disagreement.`
+    : `Convergence on "${topic}" remains stable at ${Math.round(current.convergenceScore * 100)}%.`;
 
   return {
     topic,

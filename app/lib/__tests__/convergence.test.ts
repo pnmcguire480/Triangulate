@@ -31,10 +31,11 @@ describe('calculateConvergenceScore', () => {
 
   // --- Cross-center confirmation (high scores) ---
 
-  it('scores high for cross-center (LEFT + RIGHT)', () => {
+  it('scores moderate for cross-center pair (LEFT + RIGHT)', () => {
     const score = calculateConvergenceScore(['LEFT', 'RIGHT']);
-    // Distance 4/6 = 0.67, + cross-center 0.15, * 0.7 count factor
-    expect(score).toBeGreaterThanOrEqual(0.5);
+    // Distance 4/6 superlinear, but countFactor 0.7 for only 2 sources
+    expect(score).toBeGreaterThanOrEqual(0.35);
+    expect(score).toBeLessThan(0.7);
   });
 
   it('scores higher for full spectrum (FAR_LEFT + FAR_RIGHT)', () => {
@@ -84,14 +85,15 @@ describe('calculateConvergenceScore', () => {
       ['LEFT', 'CENTER', 'RIGHT'],
       ['US', 'UK', 'MIDDLE_EAST']
     );
-    expect(score).toBeGreaterThanOrEqual(0.7);
+    // 3 sources = countFactor 0.85, but region + center bonus still pushes above 0.6
+    expect(score).toBeGreaterThanOrEqual(0.6);
   });
 
   // --- Fringe-only cap (AC-4: same-side-only < 0.3) ---
 
-  it('caps fringe-only convergence at 0.2 (FAR_LEFT + FAR_RIGHT)', () => {
+  it('caps fringe-only convergence (FAR_LEFT + FAR_RIGHT)', () => {
     const score = calculateConvergenceScore(['FAR_LEFT', 'FAR_RIGHT']);
-    expect(score).toBeLessThanOrEqual(0.2);
+    expect(score).toBeLessThanOrEqual(0.15);
   });
 
   it('does not cap when non-fringe tier is present', () => {

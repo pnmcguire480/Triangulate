@@ -30,7 +30,7 @@ export async function action({ request }: { request: Request }) {
   }
 
   // Full-text search using websearch_to_tsquery (safely handles user input)
-  let storyIds: string[] = [];
+  let storyIds: string[];
 
   try {
     const ftsResults = await prisma.$queryRaw<{ id: string; rank: number }[]>(

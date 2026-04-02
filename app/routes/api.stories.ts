@@ -1,5 +1,5 @@
 import { prisma } from "~/lib/prisma.server";
-import { compareStories, type ComparisonResult } from "~/lib/comparisons";
+import { compareStories } from "~/lib/comparisons";
 
 export async function loader({ request }: { request: Request }) {
   const url = new URL(request.url);

@@ -385,21 +385,82 @@ export async function runEngine(): Promise<{
   // Step 6: Cluster via Union-Find
   const clusters = clusterPairs(articles, pairs);
 
-  // Step 7: Rank
-  const ranked = rankClusters(clusters, articles, weights);
-  const multiSource = ranked.filter((s) => s.isMultiSource);
+  // Before creating new stories, check if any unclustered articles
+  // should join EXISTING stories (match against recent story centroids)
+  let storiesUpdated = 0;
+  const assignedArticleIds = new Set<string>();
 
-  console.log(`[engine] ${ranked.length} stories (${multiSource.length} multi-source)`);
+  // Find recent stories to match against
+  const recentStories = await prisma.story.findMany({
+    where: { createdAt: { gte: since } },
+    include: {
+      articles: { select: { id: true, title: true, sourceId: true } },
+    },
+  });
+
+  for (const existingStory of recentStories) {
+    const storyEntities = new Set<string>();
+    for (const a of existingStory.articles) {
+      for (const e of extractEntities(a.title)) {
+        storyEntities.add(e.normalized);
+      }
+    }
+
+    // Check each unclustered article against this story's entity set
+    for (const article of articles) {
+      if (assignedArticleIds.has(article.id)) continue;
+      // Skip articles already in this story
+      if (existingStory.articles.some((a) => a.id === article.id)) continue;
+      // Don't match articles from the same source already in the story
+      if (existingStory.articles.some((a) => a.sourceId === article.sourceId)) continue;
+
+      const articleEntityNames = article.entities.map((e) => e.normalized);
+      const sharedCount = articleEntityNames.filter((e) => storyEntities.has(e)).length;
+
+      if (sharedCount >= MIN_SHARED_ENTITIES) {
+        try {
+          await prisma.article.update({
+            where: { id: article.id },
+            data: { storyId: existingStory.id },
+          });
+          // Reset lastAnalyzedAt to trigger re-analysis with new evidence
+          await prisma.story.update({
+            where: { id: existingStory.id },
+            data: { lastAnalyzedAt: null },
+          });
+          assignedArticleIds.add(article.id);
+          storiesUpdated++;
+        } catch { /* article may already be assigned */ }
+      }
+    }
+  }
+
+  if (storiesUpdated > 0) {
+    console.log(`[engine] Added ${storiesUpdated} articles to existing stories (re-analysis triggered)`);
+  }
+
+  // Filter out articles that were assigned to existing stories
+  const remainingArticles = articles.filter((a) => !assignedArticleIds.has(a.id));
+
+  // Re-run clustering on remaining unassigned articles
+  const remainingWeights = computeEntityWeights(remainingArticles);
+  const remainingIndex = buildInvertedIndex(remainingArticles, remainingWeights);
+  const remainingPairs = findAndScorePairs(remainingArticles, remainingIndex, remainingWeights);
+  const remainingClusters = clusterPairs(remainingArticles, remainingPairs);
+  const remainingRanked = rankClusters(remainingClusters, remainingArticles, remainingWeights);
+
+  const multiSource = remainingRanked.filter((s) => s.isMultiSource);
+  console.log(`[engine] ${remainingRanked.length} new stories (${multiSource.length} multi-source), ${storiesUpdated} existing stories updated`);
   for (const s of multiSource.slice(0, 10)) {
     console.log(`  [${s.articleCount} articles] ${s.bestTitle.slice(0, 80)}`);
     console.log(`    entities: ${s.entitySignature.join(", ")}`);
   }
 
-  // Persist to database
+  // Persist new stories
   let storiesCreated = 0;
-  let articlesAssigned = 0;
+  let articlesAssigned = assignedArticleIds.size;
 
-  for (const story of ranked) {
+  for (const story of remainingRanked) {
     try {
       const dbStory = await prisma.story.create({
         data: {

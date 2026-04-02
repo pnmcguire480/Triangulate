@@ -31,7 +31,6 @@ export async function action({ request }: { request: Request }) {
     case "checkout.session.completed": {
       const session = event.data.object;
       const userId = session.metadata?.userId;
-      const tier = session.metadata?.tier;
       const customerId = session.customer as string;
 
       if (userId) {

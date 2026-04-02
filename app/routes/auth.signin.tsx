@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLoaderData, Link } from "react-router";
+import { Link } from "react-router";
 import { Mail, Crown, ArrowLeft } from "lucide-react";
 import type { Route } from "./+types/auth.signin";
 import { getUserId, isFounderPhase } from '~/lib/auth.server';

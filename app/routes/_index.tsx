@@ -30,7 +30,7 @@ export async function loader({ request }: { request: Request }) {
   const regionFilter = url.searchParams.getAll('region');
   const convergenceMin = Number(url.searchParams.get('convMin')) || 0;
   const convergenceMax = Number(url.searchParams.get('convMax')) || 100;
-  const preset = url.searchParams.get('preset');
+  const _preset = url.searchParams.get('preset');
 
   // Build where clause
   const where: Record<string, unknown> = {
@@ -137,9 +137,9 @@ export async function loader({ request }: { request: Request }) {
 }
 
 export default function Home() {
-  const { stories, user, selectedStoryId, surprise, usage } = useLoaderData<typeof loader>();
+  const { stories, user, selectedStoryId: _selectedStoryId, surprise, usage: _usage } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const storyFetcher = useFetcher();
+  const _storyFetcher = useFetcher();
 
   const selectedId = searchParams.get('story');
 

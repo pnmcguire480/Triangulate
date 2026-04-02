@@ -3,7 +3,7 @@
 // Direct URL access renders AppShell with Wire + Lens loaded
 // ============================================================
 
-import { Link, useLoaderData } from 'react-router';
+import { Link } from 'react-router';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowLeft, Globe, Newspaper, MessageSquareText } from 'lucide-react';
 import type { Route } from './+types/story.$id';
