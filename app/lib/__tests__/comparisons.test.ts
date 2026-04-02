@@ -45,4 +45,37 @@ describe('compareStories', () => {
     const result = compareStories('test', previous, current);
     expect(result.deltaPercent).toBe(64); // 87 - 23 = 64
   });
+
+  it('handles zero convergence scores', () => {
+    const zero = { ...previous, convergenceScore: 0 };
+    const result = compareStories('test', zero, current);
+    expect(result.direction).toBe('rising');
+    expect(result.delta).toBe(0.87);
+  });
+
+  it('handles identical scores within stability threshold', () => {
+    const a = { ...previous, convergenceScore: 0.50 };
+    const b = { ...current, convergenceScore: 0.54 };
+    const result = compareStories('test', a, b);
+    expect(result.direction).toBe('stable');
+  });
+
+  it('handles exact boundary of stability threshold (0.06 triggers rising)', () => {
+    const a = { ...previous, convergenceScore: 0.50 };
+    const b = { ...current, convergenceScore: 0.56 };
+    const result = compareStories('test', a, b);
+    // delta = 0.06 > 0.05 threshold
+    expect(result.direction).toBe('rising');
+  });
+
+  it('includes topic in narrative', () => {
+    const result = compareStories('Ukraine conflict', previous, current);
+    expect(result.narrative).toContain('Ukraine conflict');
+  });
+
+  it('preserves snapshot references', () => {
+    const result = compareStories('test', previous, current);
+    expect(result.previous).toBe(previous);
+    expect(result.current).toBe(current);
+  });
 });

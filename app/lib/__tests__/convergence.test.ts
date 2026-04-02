@@ -101,12 +101,31 @@ describe('calculateConvergenceScore', () => {
     expect(score).toBeGreaterThan(0.2);
   });
 
-  // --- Source count diminishing returns ---
+  // --- Source count diminishing returns (countFactor) ---
 
   it('scores higher with more sources confirming', () => {
     const two = calculateConvergenceScore(['LEFT', 'RIGHT']);
     const four = calculateConvergenceScore(['LEFT', 'RIGHT', 'LEFT', 'RIGHT', 'LEFT', 'RIGHT']);
     expect(four).toBeGreaterThan(two);
+  });
+
+  it('applies countFactor penalty for fewer sources', () => {
+    // Same ideological spread, but 5 sources should score higher than 2
+    const twoSources = calculateConvergenceScore(['LEFT', 'RIGHT']);
+    const fiveSources = calculateConvergenceScore(
+      ['FAR_LEFT', 'LEFT', 'CENTER', 'RIGHT', 'FAR_RIGHT']
+    );
+    // 5 sources get countFactor=1.0, 2 sources get countFactor=0.7
+    expect(fiveSources).toBeGreaterThan(twoSources);
+  });
+
+  it('3 sources get countFactor 0.85 (penalized but not heavily)', () => {
+    const three = calculateConvergenceScore(['LEFT', 'CENTER', 'RIGHT']);
+    const five = calculateConvergenceScore(
+      ['FAR_LEFT', 'LEFT', 'CENTER', 'RIGHT', 'FAR_RIGHT']
+    );
+    // Both should score well, but 5 slightly higher due to countFactor
+    expect(five).toBeGreaterThan(three);
   });
 
   // --- Score bounds ---
