@@ -75,3 +75,11 @@ angle ranking and format matching based on what's worked before.
 29. **Track source health automatically.** Sources that fail 5 consecutive fetches should auto-deactivate. Sources that recover should auto-reactivate. Don't wait for a human to notice a broken RSS feed.
 
 30. **No competitor does claim-level convergence.** Ground News maps coverage. AllSides shows perspectives. Google clusters stories. NewsGuard rates sources. Nobody extracts claims, matches them across ideologically opposed sources, and scores convergence weighted by ideological distance. This is the moat — protect it.
+
+### Run 4 — 2026-04-02 (BrainStormer Health Check)
+
+31. **Always apply computed values or delete them.** A variable that is assigned but never read is either a bug (value should be used) or dead code (computation should be removed). The countFactor bug showed the real cost: convergence scores were wrong for every 2-4 source claim.
+
+32. **Always use `.server` suffix for server-only lib modules.** If a lib file imports `@prisma/client`, `crypto`, or any Node-only API, the file must use the `.server.ts` suffix. This is structural protection against client bundle leaks, not just convention.
+
+33. **Every `useState` setter must have a corresponding render.** If you call `setError(msg)` somewhere, there must be a `{error && <div>...}` somewhere in the JSX. Silent error state is worse than no error handling — it gives false confidence that errors are handled.

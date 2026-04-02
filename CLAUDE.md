@@ -38,19 +38,29 @@ Triangulate ingests 55+ news outlets across the political spectrum (FAR_LEFT →
 
 ### Last Session
 
-- **Date:** 2026-03-26
+- **Date:** 2026-04-02
 - **What was accomplished:**
-  - Work in progress (94 uncommitted files)
-- **Files changed:** 41 files across 0 commits
-- **Uncommitted changes:** 94 files
-- **CodeGlass:** 0 decisions flagged, 0 patterns detected
-- **Next session should start with:** Continue from where you left off
+  - **Full BrainStormer health check:** quality audit, comprehension scan, governance drift fix, test gap fill
+  - **ESLint installed and configured:** flat config with typescript-eslint, 0 errors (22 `any` warnings in AI/Stripe code — acceptable)
+  - **BUG FIX: convergence countFactor** — `countFactor` in convergence.ts was computed but never applied to score. 2-source claims were scoring artificially high. Now: 2 sources = 0.7x, 3 = 0.85x, 4 = 0.95x, 5+ = 1.0x
+  - **BUG FIX: checkout error display** — pricing.tsx had `setCheckoutError()` calls but never displayed the error to users. Added error banner.
+  - **Dead code removed:** unused `rankClusters()` call in engine.ts (expensive computation with no consumer)
+  - **Server import fix:** engine.ts and source-stats.ts imported from `./prisma` instead of `./prisma.server` — ticking time bomb for client bundle leaks
+  - **15 unused variable/import warnings cleaned** across 7 route files
+  - **28 new tests written:** entities (15), convergence countFactor (2), comparisons edge cases (5), ingest classifyUrl (6)
+  - **Prior session pipeline upgrades committed** (were left uncommitted from 2026-03-30)
+  - **Eval harness:** 5/5 green (install, build, lint, typecheck, tests)
+- **Tests:** 118/118 passing across 11 test files, 0 TypeScript errors, 0 lint errors
+- **Next session should start with:**
+  - Process governance drift agent and assumption audit agent results (if completed)
+  - Begin Chunk 13 (Deploy) or Phase 5A of Journalist Pro (Evidence Package Export)
+  - Verify RSS feeds for newly added sources (some marked isActive: false)
 
 ### What Works Right Now
 
 - **Framework:** React Router v7 (Remix) + Vite 7 + Tailwind v4
-- **Database:** Neon PostgreSQL, 11 models, 10 enums (migration pending)
-- **Sources:** 55 outlets across 7 bias tiers and 7 global regions
+- **Database:** Neon PostgreSQL, 11 models, 12 enums, v2 migration applied
+- **Sources:** 76 outlets across 7 bias tiers and 9 global regions (incl. Latin America, Africa)
 - **Pipeline:** /api/ingest → /api/cluster → /api/analyze → /api/gci + source stats
 - **AI:** Multi-provider system (Claude primary, Gemini/DeepSeek/Grok available)
 - **App Shell:** TopBar + CommandPalette (Ctrl+K), Sidebar, StatusBar (live health polling), BottomTabBar, AppShell, DashboardLayout
@@ -68,13 +78,14 @@ Triangulate ingests 55+ news outlets across the political spectrum (FAR_LEFT →
 - **Onboarding:** Progressive mastery tips, logged-out landing page, condensed hero
 - **Search:** Redesigned results with convergence gauges, on-demand triangulation API
 - **Pipeline Health:** /api/health endpoint, StatusBar polls every 60s
-- **Testing:** 90 unit tests passing, 0 TypeScript errors
+- **Testing:** 118 unit tests passing across 11 files, 0 TypeScript errors, ESLint configured (0 errors)
+- **Linting:** ESLint + typescript-eslint flat config, CI-ready
 
 ### What's Broken Right Now
 
 - Email sends only when RESEND_API_KEY is set (logs to console otherwise — by design for dev)
 - Stripe price IDs need to be created in Stripe Dashboard and set as env vars
-- **Prisma migration not yet run** for DailyGCI, Workspace, SourceMonthlyStats models
+- **All migrations applied** including v2 pipeline upgrades (2026-03-31)
 
 ### What's Blocked
 
@@ -86,9 +97,9 @@ Triangulate ingests 55+ news outlets across the political spectrum (FAR_LEFT →
 
 ### Active Branch
 
-- **Branch name:** feat/remix-migration
-- **Purpose:** Phase 1 build (UI, auth, payments, AI Round Table)
-- **Merge target:** main
+- **Branch name:** main
+- **Purpose:** All launch chunks complete (0-12). Only Chunk 13 (Deploy) remains.
+- **Merge target:** N/A (working directly on main)
 
 ---
 
