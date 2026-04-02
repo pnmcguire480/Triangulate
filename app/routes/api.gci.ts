@@ -17,7 +17,10 @@ export async function action({ request }: Route.ActionArgs) {
   if (!process.env.CRON_SECRET) {
     return Response.json({ error: "CRON_SECRET not configured" }, { status: 500 });
   }
-  const secret = request.headers.get("x-cron-secret") || "";
+  // Accept both x-cron-secret (manual) and Authorization: Bearer (Vercel crons)
+  const secret = request.headers.get("x-cron-secret")
+    || request.headers.get("authorization")?.replace("Bearer ", "")
+    || "";
   const expected = process.env.CRON_SECRET || "";
   if (!secret || secret.length !== expected.length || !timingSafeEqual(Buffer.from(secret), Buffer.from(expected))) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });

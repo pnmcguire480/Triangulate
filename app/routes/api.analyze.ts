@@ -17,7 +17,10 @@ export async function loader({ request }: { request: Request }) {
   if (!process.env.CRON_SECRET) {
     return Response.json({ error: "CRON_SECRET not configured" }, { status: 500 });
   }
-  const cronSecret = request.headers.get("x-cron-secret") || "";
+  // Accept both x-cron-secret (manual) and Authorization: Bearer (Vercel crons)
+  const cronSecret = request.headers.get("x-cron-secret")
+    || request.headers.get("authorization")?.replace("Bearer ", "")
+    || "";
   const expectedSecret = process.env.CRON_SECRET || "";
   if (!cronSecret || cronSecret.length !== expectedSecret.length || !timingSafeEqual(Buffer.from(cronSecret), Buffer.from(expectedSecret))) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
