@@ -217,7 +217,7 @@ export async function askRoundTable(
 // Task-Specific Routing Config
 // ============================================================
 
-export type AITask = "clustering" | "claim_extraction" | "semantic_dedup" | "convergence" | "primary_doc" | "search";
+export type AITask = "clustering" | "claim_extraction" | "semantic_dedup" | "convergence" | "primary_doc" | "search" | "topic_classification";
 
 interface TaskConfig {
   primary: AIProvider;
@@ -234,6 +234,7 @@ export const TASK_ROUTING: Record<AITask, TaskConfig> = {
   semantic_dedup: { primary: "claude", verifyWith: "gemini", fallback: "claude" },
   convergence: { primary: "claude", verifyWith: "gemini", fallback: "claude" },
   primary_doc: { primary: "claude", fallback: "claude" },
+  topic_classification: { primary: "claude", fallback: "claude" },
   search: { primary: "claude", verifyWith: "gemini", fallback: "deepseek" },
 };
 

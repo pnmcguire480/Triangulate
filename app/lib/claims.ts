@@ -267,7 +267,7 @@ Topics: POLITICS, ECONOMY, WORLD, TECHNOLOGY, SCIENCE, HEALTH, ENVIRONMENT, LEGA
   const user = titles;
 
   try {
-    const { text } = await askForTask('claim_extraction', system, user);
+    const { text } = await askForTask('topic_classification', system, user);
     const topic = text.trim().toUpperCase().replace(/[^A-Z]/g, '');
     const validTopics = ['POLITICS', 'ECONOMY', 'WORLD', 'TECHNOLOGY', 'SCIENCE', 'HEALTH', 'ENVIRONMENT', 'LEGAL', 'OTHER'];
     return validTopics.includes(topic) ? topic : null;
