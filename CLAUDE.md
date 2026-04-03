@@ -38,23 +38,26 @@ Triangulate ingests 55+ news outlets across the political spectrum (FAR_LEFT →
 
 ### Last Session
 
-- **Date:** 2026-04-02
+- **Date:** 2026-04-03
 - **What was accomplished:**
-  - **Full BrainStormer health check:** quality audit, comprehension scan, governance drift fix, test gap fill
-  - **ESLint installed and configured:** flat config with typescript-eslint, 0 errors (22 `any` warnings in AI/Stripe code — acceptable)
-  - **BUG FIX: convergence countFactor** — `countFactor` in convergence.ts was computed but never applied to score. 2-source claims were scoring artificially high. Now: 2 sources = 0.7x, 3 = 0.85x, 4 = 0.95x, 5+ = 1.0x
-  - **BUG FIX: checkout error display** — pricing.tsx had `setCheckoutError()` calls but never displayed the error to users. Added error banner.
-  - **Dead code removed:** unused `rankClusters()` call in engine.ts (expensive computation with no consumer)
-  - **Server import fix:** engine.ts and source-stats.ts imported from `./prisma` instead of `./prisma.server` — ticking time bomb for client bundle leaks
-  - **15 unused variable/import warnings cleaned** across 7 route files
-  - **28 new tests written:** entities (15), convergence countFactor (2), comparisons edge cases (5), ingest classifyUrl (6)
-  - **Prior session pipeline upgrades committed** (were left uncommitted from 2026-03-30)
-  - **Eval harness:** 5/5 green (install, build, lint, typecheck, tests)
-- **Tests:** 118/118 passing across 11 test files, 0 TypeScript errors, 0 lint errors
+  - **FIRST PRODUCTION DEPLOY** — triangulatenews.com is live on Vercel with real data
+  - **Pipeline activated:** Ingest (3,028 articles from 69 sources), Cluster (74 multi-source stories), Analyze (64 stories with 262+ claims), GCI computed
+  - **BUG FIX: analyze query** — `take: 200` was too small, multi-source stories buried behind 1,600+ single-source ones. Increased to `take: 2000`
+  - **BUG FIX: feed sort** — DB query sorted by createdAt only. Now sorts by claim count desc so multi-source stories with convergence data appear first
+  - **Syndication detection added** to analyze pipeline — Jaccard similarity >60% flags wire republishes
+  - **How It Works page** — /how-it-works with 5-step pipeline explanation, "What Triangulate is not" section, CTA
+  - **17 new engine tests** — computeEntityWeights, buildInvertedIndex, temporalProximity, findAndScorePairs, clusterPairs, pickBestTitle
+  - **README updated** with current source counts, architecture, and features
+  - **Vercel crons downgraded** to daily (Hobby plan limit) — restore when upgrading to Pro
+  - **Remote switched** from SSH to HTTPS (SSH host key verification was failing)
+  - **Landing page copy** updated from 55+ to 76+ outlets
+- **Tests:** 156/156 passing across 13 test files, 0 TypeScript errors, 0 lint errors
 - **Next session should start with:**
-  - Process governance drift agent and assumption audit agent results (if completed)
-  - Begin Chunk 13 (Deploy) or Phase 5A of Journalist Pro (Evidence Package Export)
-  - Verify RSS feeds for newly added sources (some marked isActive: false)
+  - Run pipeline again to accumulate more cross-spectrum coverage (convergence scores will improve)
+  - Consider external cron service for more frequent pipeline runs (Vercel Hobby = daily only)
+  - Stripe price IDs still needed for live payments
+  - Single-source stories not getting marked as analyzed (20 reappear each run) — investigate
+  - Begin Phase 5A of Journalist Pro (Evidence Package Export) or polish existing features
 
 ### What Works Right Now
 
