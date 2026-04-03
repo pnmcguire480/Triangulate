@@ -22,7 +22,7 @@ const MAX_CLUSTER_SIZE = 25;       // safety cap — no cluster should have more
 // Step 1-2: Entity extraction + TF-IDF weighting
 // ============================================================
 
-interface ArticleWithEntities {
+export interface ArticleWithEntities {
   id: string;
   title: string;
   publishedAt: Date;
@@ -30,13 +30,13 @@ interface ArticleWithEntities {
   entities: Entity[];
 }
 
-interface EntityWeight {
+export interface EntityWeight {
   entity: string;
   weight: number; // log(N / df) — higher = more specific
   type: Entity["type"];
 }
 
-function computeEntityWeights(
+export function computeEntityWeights(
   articles: ArticleWithEntities[]
 ): Map<string, EntityWeight> {
   const docFreq = new Map<string, number>(); // entity → number of articles it appears in
@@ -80,7 +80,7 @@ function computeEntityWeights(
 // Step 3: Inverted Index
 // ============================================================
 
-function buildInvertedIndex(
+export function buildInvertedIndex(
   articles: ArticleWithEntities[],
   weights: Map<string, EntityWeight>
 ): Map<string, Set<number>> {
@@ -106,20 +106,20 @@ function buildInvertedIndex(
 // Step 4-5: Candidate pairs + scoring
 // ============================================================
 
-function temporalProximity(a: Date, b: Date): number {
+export function temporalProximity(a: Date, b: Date): number {
   const diffHours = Math.abs(a.getTime() - b.getTime()) / (1000 * 60 * 60);
   if (diffHours > TEMPORAL_DECAY_HOURS) return 0;
   return 1 - (diffHours / TEMPORAL_DECAY_HOURS);
 }
 
-interface CandidatePair {
+export interface CandidatePair {
   i: number;
   j: number;
   score: number;
   sharedEntities: string[];
 }
 
-function findAndScorePairs(
+export function findAndScorePairs(
   articles: ArticleWithEntities[],
   index: Map<string, Set<number>>,
   weights: Map<string, EntityWeight>
@@ -241,7 +241,7 @@ class UnionFind {
   }
 }
 
-function clusterPairs(
+export function clusterPairs(
   articles: ArticleWithEntities[],
   pairs: CandidatePair[]
 ): Map<number, number[]> {
@@ -275,7 +275,7 @@ export interface RankedStory {
   isMultiSource: boolean;
 }
 
-function pickBestTitle(titles: string[]): string {
+export function pickBestTitle(titles: string[]): string {
   // Prefer mid-length, clean titles (40-120 chars)
   return [...titles]
     .map((t) => t.replace(/\s+/g, " ").trim())
