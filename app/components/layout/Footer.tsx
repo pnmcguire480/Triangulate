@@ -34,7 +34,7 @@ export default function Footer() {
             <div>
               <h3 className="dateline mb-3">Company</h3>
               <div className="flex flex-col gap-2">
-                <Link to="/#feed" className="text-sm text-ink-muted hover:text-ink transition-colors">
+                <Link to="/how-it-works" className="text-sm text-ink-muted hover:text-ink transition-colors">
                   How It Works
                 </Link>
                 <Link to="/auth/signin" className="text-sm text-ink-muted hover:text-ink transition-colors">

@@ -12,6 +12,54 @@ import { timingSafeEqual } from "crypto";
 
 const BATCH_SIZE = 20;
 const MAX_FAILURES = 3;
+const SYNDICATION_THRESHOLD = 0.6; // Jaccard similarity above this = probable wire copy
+
+/**
+ * Detect syndicated content via snippet similarity.
+ * If two articles from different bias tiers have >60% word overlap,
+ * the later one is likely a wire republish. Keep the first, flag the rest.
+ * Returns a Set of article IDs to exclude from convergence scoring.
+ */
+function detectSyndicatedContent(
+  articles: Array<{ id: string; snippet: string | null; biasTier: string }>
+): Set<string> {
+  const excluded = new Set<string>();
+  const withSnippets = articles.filter(
+    (a) => a.snippet && a.snippet.length >= 100
+  );
+
+  for (let i = 0; i < withSnippets.length; i++) {
+    if (excluded.has(withSnippets[i].id)) continue;
+    const tokensI = tokenizeSnippet(withSnippets[i].snippet!);
+    if (tokensI.size < 5) continue;
+
+    for (let j = i + 1; j < withSnippets.length; j++) {
+      if (excluded.has(withSnippets[j].id)) continue;
+      // Only flag cross-tier syndication (same-tier overlap is expected)
+      if (withSnippets[i].biasTier === withSnippets[j].biasTier) continue;
+
+      const tokensJ = tokenizeSnippet(withSnippets[j].snippet!);
+      if (tokensJ.size < 5) continue;
+
+      const intersection = [...tokensI].filter((t) => tokensJ.has(t)).length;
+      const union = new Set([...tokensI, ...tokensJ]).size;
+      const similarity = union > 0 ? intersection / union : 0;
+
+      if (similarity > SYNDICATION_THRESHOLD) {
+        // Exclude the second article (keep the first as the "original")
+        excluded.add(withSnippets[j].id);
+      }
+    }
+  }
+
+  return excluded;
+}
+
+function tokenizeSnippet(text: string): Set<string> {
+  return new Set(
+    text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter((w) => w.length > 3)
+  );
+}
 
 export async function loader({ request }: { request: Request }) {
   if (!process.env.CRON_SECRET) {
@@ -27,7 +75,7 @@ export async function loader({ request }: { request: Request }) {
   }
 
   try {
-    // Grab unanalyzed stories, skip those that have failed too many times
+    // Grab unanalyzed stories — fetch enough to find multi-source ones
     const allUnanalyzed = await prisma.story.findMany({
       where: {
         lastAnalyzedAt: null,
@@ -39,7 +87,7 @@ export async function loader({ request }: { request: Request }) {
         },
         _count: { select: { articles: true } },
       },
-      take: 200,
+      take: 2000,
       orderBy: { createdAt: "desc" },
     });
 
@@ -98,7 +146,7 @@ export async function loader({ request }: { request: Request }) {
         // Step 2: Deduplicate semantically (skips AI for small sets)
         const deduped = await deduplicateClaims(rawClaims);
 
-        // Step 3: Score convergence with wire service awareness
+        // Step 3: Score convergence with wire service + content similarity awareness
         const articleMeta = new Map(
           story.articles.map((a) => [
             a.id,
@@ -106,6 +154,7 @@ export async function loader({ request }: { request: Request }) {
               biasTier: a.source.biasTier,
               region: a.source.region,
               isWireService: (a.source as any).isWireService as boolean,
+              snippet: (a as any).contentSnippet as string | null,
             },
           ])
         );
@@ -118,10 +167,20 @@ export async function loader({ request }: { request: Request }) {
             .map((a) => a.id)
         );
 
+        // Detect syndicated content: articles with >60% snippet overlap
+        // are likely republished wire copy even if the source isn't flagged
+        const syndicatedIds = detectSyndicatedContent(
+          story.articles.map((a) => ({
+            id: a.id,
+            snippet: (a as any).contentSnippet as string | null,
+            biasTier: a.source.biasTier,
+          }))
+        );
+
         for (const claim of deduped) {
-          // Filter out wire service duplicates from convergence calculation
+          // Filter out wire services AND syndicated duplicates
           const independentSources = claim.sources.filter(
-            (s) => !wireArticleIds.has(s.articleId)
+            (s) => !wireArticleIds.has(s.articleId) && !syndicatedIds.has(s.articleId)
           );
 
           // Use independent sources for scoring, but keep all for attribution

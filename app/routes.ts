@@ -8,6 +8,7 @@ export default [
   route("sources", "routes/sources.tsx"),
   route("sources/:id", "routes/sources.$id.tsx"),
   route("trends", "routes/trends.tsx"),
+  route("how-it-works", "routes/how-it-works.tsx"),
   // Auth routes
   route("auth/signin", "routes/auth.signin.tsx"),
   route("auth/verify", "routes/auth.verify.tsx"),

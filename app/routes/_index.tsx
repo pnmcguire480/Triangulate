@@ -58,8 +58,11 @@ export async function loader({ request }: { request: Request }) {
       claims: { select: { convergenceScore: true, claimType: true, claimText: true } },
       _count: { select: { articles: true, claims: true, primaryDocs: true } },
     },
-    orderBy: { createdAt: 'desc' },
-    take: user ? 60 : 10,
+    orderBy: [
+      { claims: { _count: 'desc' } },
+      { createdAt: 'desc' },
+    ],
+    take: user ? 100 : 50,
   });
 
   // Transform to StoryListRowProps shape
@@ -248,7 +251,7 @@ function LoggedOutLanding({
             .
           </h1>
           <p className="text-sm text-ink-muted max-w-lg mx-auto mb-6 animate-fade-in">
-            Triangulate clusters news from 55+ outlets across the political spectrum.
+            Triangulate clusters news from 76+ outlets across the political spectrum.
             Where ideologically opposed sources confirm the same facts — that&apos;s the signal.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4 animate-fade-in">

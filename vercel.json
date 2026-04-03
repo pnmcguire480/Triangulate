@@ -3,19 +3,19 @@
   "crons": [
     {
       "path": "/api/ingest",
-      "schedule": "*/30 * * * *"
+      "schedule": "0 6 * * *"
     },
     {
       "path": "/api/cluster",
-      "schedule": "15,45 * * * *"
+      "schedule": "0 7 * * *"
     },
     {
       "path": "/api/analyze",
-      "schedule": "0 * * * *"
+      "schedule": "0 8 * * *"
     },
     {
       "path": "/api/gci",
-      "schedule": "5 * * * *"
+      "schedule": "0 9 * * *"
     }
   ],
   "headers": [
