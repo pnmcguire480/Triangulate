@@ -17,9 +17,9 @@ interface WirePanelProps {
 // Group stories by signal tier for sticky headers
 function groupBySignal(stories: StoryListRowProps[]) {
   const groups: { label: string; stories: StoryListRowProps[] }[] = [
-    { label: "Highest Signal", stories: [] },
-    { label: "Developing", stories: [] },
-    { label: "Single Source", stories: [] },
+    { label: "Strong Agreement", stories: [] },
+    { label: "Building Evidence", stories: [] },
+    { label: "Awaiting Confirmation", stories: [] },
   ];
 
   for (const story of stories) {

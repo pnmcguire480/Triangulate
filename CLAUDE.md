@@ -38,26 +38,29 @@ Triangulate ingests 55+ news outlets across the political spectrum (FAR_LEFT →
 
 ### Last Session
 
-- **Date:** 2026-04-03
+- **Date:** 2026-04-09
 - **What was accomplished:**
-  - **FIRST PRODUCTION DEPLOY** — triangulatenews.com is live on Vercel with real data
-  - **Pipeline activated:** Ingest (3,028 articles from 69 sources), Cluster (74 multi-source stories), Analyze (64 stories with 262+ claims), GCI computed
-  - **BUG FIX: analyze query** — `take: 200` was too small, multi-source stories buried behind 1,600+ single-source ones. Increased to `take: 2000`
-  - **BUG FIX: feed sort** — DB query sorted by createdAt only. Now sorts by claim count desc so multi-source stories with convergence data appear first
-  - **Syndication detection added** to analyze pipeline — Jaccard similarity >60% flags wire republishes
-  - **How It Works page** — /how-it-works with 5-step pipeline explanation, "What Triangulate is not" section, CTA
-  - **17 new engine tests** — computeEntityWeights, buildInvertedIndex, temporalProximity, findAndScorePairs, clusterPairs, pickBestTitle
-  - **README updated** with current source counts, architecture, and features
-  - **Vercel crons downgraded** to daily (Hobby plan limit) — restore when upgrading to Pro
-  - **Remote switched** from SSH to HTTPS (SSH host key verification was failing)
-  - **Landing page copy** updated from 55+ to 76+ outlets
-- **Tests:** 156/156 passing across 13 test files, 0 TypeScript errors, 0 lint errors
+  - **MAJOR UX OVERHAUL — "Truth is Free" philosophy applied across the product**
+  - **Round Table audit** with 18 thinker perspectives (Socrates, Plato, Alan Watts, Diogenes, Peter Joseph, Buckminster Fuller, Steve Jobs, Sam Altman, Claude Shannon, Bayes/Laplace, Edward Tufte, + 7 system agents)
+  - **Sort order fixed:** Pure convergence score descending (removed multi-source-first priority that was burying best stories)
+  - **Tier labels renamed:** "Highest Signal" → "Strong Agreement", "Developing" → "Building Evidence", "Single Source" → "Awaiting Confirmation"
+  - **Convergence gauge:** Added word anchors — "Strong (84%)" / "Mixed (47%)" / "Weak (18%)"
+  - **Story cards redesigned:** Evidence summary line ("5 sources across Left, Center, and Right"), discrete 7-cell bias spectrum (replaced gradient bar), removed old source pills
+  - **FREE TIER OPENED:** All stories, search, filters, claim breakdowns now free. Only pro tools gated (export, workspaces, certificates, source intel, API, density, command palette)
+  - **Logged-out landing page:** Condensed hero, full wire (not 5 stories), links to story detail, CTA sells pro tools not access
+  - **Minimum convergence threshold:** Logged-out users only see stories with >=30% convergence or 2+ sources (no red/weak stories for new visitors)
+  - **SmartPresets:** Reduced from 7 to 3 visible (Strong Agreement, Left vs Right, Breaking Now) with "More lenses" toggle
+  - **Pricing page:** Updated to reflect "truth is free" — Free tier now shows unlimited stories, search, filters, claims
+  - **Capabilities test:** Updated 3 tests + added 2 new tests for new FREE tier
+- **Tests:** 159/159 passing across 13 test files, 0 TypeScript errors, 0 lint errors
+- **Key philosophical decision:** Per Peter Joseph — "The moment you charge for filters, you reproduce the structure you claim to oppose." Free tier now gives full access to truth; paid tiers are professional tools.
 - **Next session should start with:**
-  - Run pipeline again to accumulate more cross-spectrum coverage (convergence scores will improve)
-  - Consider external cron service for more frequent pipeline runs (Vercel Hobby = daily only)
+  - Run pipeline again to accumulate more cross-spectrum coverage
   - Stripe price IDs still needed for live payments
+  - Consider external cron service for more frequent pipeline runs
   - Single-source stories not getting marked as analyzed (20 reappear each run) — investigate
-  - Begin Phase 5A of Journalist Pro (Evidence Package Export) or polish existing features
+  - Deploy these changes to production (Vercel)
+  - Hook up API keys, payment links, etc.
 
 ### What Works Right Now
 
@@ -68,12 +71,12 @@ Triangulate ingests 55+ news outlets across the political spectrum (FAR_LEFT →
 - **AI:** Multi-provider system (Claude primary, Gemini/DeepSeek/Grok available)
 - **App Shell:** TopBar + CommandPalette (Ctrl+K), Sidebar, StatusBar (live health polling), BottomTabBar, AppShell, DashboardLayout
 - **Filter System:** FilterProvider + URL codec, 7 filter types, SmartPresets, FilterSidebar, MobileFilterSheet
-- **Wire (Feed):** StoryListRow, WirePanel (tier headers), WireSkeleton, TodaysSurprise
+- **Wire (Feed):** StoryListRow (evidence summary + discrete spectrum), WirePanel (Strong Agreement / Building Evidence / Awaiting Confirmation), WireSkeleton, TodaysSurprise
 - **Lens (Story Detail):** LensPanel (4 tabs, dual data/fetcher mode), SpectrumPanel, ClaimsPanel, ConvergenceExplainer, PrimaryDocsPanel, DisagreementMap
 - **Data Viz:** ConvergenceGauge, BiasSpectrumBar, RegionIndicator, ClaimMatrix, TimelineStrip, GCIGauge, GCITicker
 - **Pro Tools:** CommandPalette (cmdk), Keyboard shortcuts (tinykeys), ShortcutOverlay, Workspace API, NotificationToast (sonner), DensityProvider, Export (CSV/JSON/Certificate)
 - **Source Intelligence:** /sources directory, /sources/:id detail, monthly stats, /trends page, convergence narratives, disagreement classification, explainer popovers
-- **Feature Gating:** capabilities.ts, Gate component, UpgradeTeaser, 16 capabilities across 3 tiers
+- **Feature Gating:** capabilities.ts (truth-is-free model), Gate component, UpgradeTeaser — FREE gets stories/search/filters/claims; STANDARD gets export/workspaces/certificates; PREMIUM gets source intel/API/whitelabel
 - **State:** Zustand workspace store with localStorage persist + debounced server sync
 - **A11y:** Skip links, aria-labels, aria-expanded, reduced-motion, forced-colors, F6 panel cycling
 - **Auth:** Cookie sessions, magic link (branded email template), Founder detection

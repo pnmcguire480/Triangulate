@@ -6,12 +6,20 @@ describe('hasCapability', () => {
     expect(hasCapability('FREE', 'keyboard-shortcuts')).toBe(true);
   });
 
-  it('FREE tier does NOT have search', () => {
-    expect(hasCapability('FREE', 'search')).toBe(false);
+  it('FREE tier has search (truth is free)', () => {
+    expect(hasCapability('FREE', 'search')).toBe(true);
   });
 
-  it('FREE tier does NOT have unlimited-stories', () => {
-    expect(hasCapability('FREE', 'unlimited-stories')).toBe(false);
+  it('FREE tier has unlimited-stories (truth is free)', () => {
+    expect(hasCapability('FREE', 'unlimited-stories')).toBe(true);
+  });
+
+  it('FREE tier has advanced-filters (truth is free)', () => {
+    expect(hasCapability('FREE', 'advanced-filters')).toBe(true);
+  });
+
+  it('FREE tier does NOT have data-export-csv', () => {
+    expect(hasCapability('FREE', 'data-export-csv')).toBe(false);
   });
 
   it('STANDARD tier has search and unlimited-stories', () => {
@@ -36,8 +44,12 @@ describe('minimumTierFor', () => {
     expect(minimumTierFor('keyboard-shortcuts')).toBe('FREE');
   });
 
-  it('search requires STANDARD', () => {
-    expect(minimumTierFor('search')).toBe('STANDARD');
+  it('search requires FREE (truth is free)', () => {
+    expect(minimumTierFor('search')).toBe('FREE');
+  });
+
+  it('data-export-csv requires STANDARD', () => {
+    expect(minimumTierFor('data-export-csv')).toBe('STANDARD');
   });
 
   it('data-export-pdf requires PREMIUM', () => {

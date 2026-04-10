@@ -57,6 +57,8 @@ export default function ConvergenceGauge({
         ? "var(--color-brand-amber)"
         : "var(--color-brand-red)";
 
+  const wordLabel = score >= 70 ? "Strong" : score >= 30 ? "Mixed" : "Weak";
+
   return (
     <div
       className="inline-flex flex-col items-center"
@@ -64,7 +66,7 @@ export default function ConvergenceGauge({
       aria-valuenow={score}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-label={`Convergence: ${score}%`}
+      aria-label={`Convergence: ${wordLabel} (${score}%)`}
     >
       <svg
         width={width}
@@ -104,7 +106,7 @@ export default function ConvergenceGauge({
         </text>
       </svg>
       {showLabel && (
-        <span className="text-[9px] text-ink-faint -mt-0.5">convergence</span>
+        <span className="text-[9px] text-ink-faint -mt-0.5">{wordLabel}</span>
       )}
     </div>
   );

@@ -31,9 +31,19 @@ export type Capability =
  * Map of tier → Set of capabilities.
  * Each tier inherits all capabilities from the tier below it.
  */
+/**
+ * Philosophy: Truth is free. Professional tools are paid.
+ * FREE gets: all stories, search, filters, claim views, bookmarks, keyboard shortcuts
+ * STANDARD gets: export, workspaces, certificates, command palette, density, notifications
+ * PREMIUM gets: source intelligence, whitelabel, JSON/PDF export, citations, API
+ */
 const TIER_CAPABILITIES: Record<UserTier, Set<Capability>> = {
   FREE: new Set<Capability>([
     "keyboard-shortcuts",
+    "unlimited-stories",
+    "search",
+    "bookmarks",
+    "advanced-filters",
   ]),
   STANDARD: new Set<Capability>([
     "keyboard-shortcuts",

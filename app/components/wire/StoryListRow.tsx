@@ -9,20 +9,24 @@ import type { BiasTier, Region, TrustSignal } from "~/types";
 import { TRUST_SIGNAL_CONFIG } from "~/types";
 import { cn } from "~/lib/utils";
 
-// Build a CSS gradient from active bias tiers (Fix 48: single div instead of 7)
-function buildSpectrumGradient(tiers: string[]): string {
-  const tierColors: Record<string, string> = {
-    FAR_LEFT: '#1a5276', LEFT: '#2980b9', CENTER_LEFT: '#5dade2',
-    CENTER: '#7f8c8d', CENTER_RIGHT: '#e67e22', RIGHT: '#e74c3c', FAR_RIGHT: '#922b21',
-  };
-  if (!tiers.length) return 'transparent';
-  const segments = tiers.map((t, i) => {
-    const color = tierColors[t] || '#7f8c8d';
-    const start = (i / tiers.length) * 100;
-    const end = ((i + 1) / tiers.length) * 100;
-    return `${color} ${start}% ${end}%`;
-  });
-  return `linear-gradient(to right, ${segments.join(', ')})`;
+// Tier configuration for discrete spectrum cells
+const TIER_ORDER = ['FAR_LEFT', 'LEFT', 'CENTER_LEFT', 'CENTER', 'CENTER_RIGHT', 'RIGHT', 'FAR_RIGHT'] as const;
+const TIER_COLORS: Record<string, string> = {
+  FAR_LEFT: '#1a5276', LEFT: '#2980b9', CENTER_LEFT: '#5dade2',
+  CENTER: '#7f8c8d', CENTER_RIGHT: '#e67e22', RIGHT: '#e74c3c', FAR_RIGHT: '#922b21',
+};
+const TIER_SHORT_LABELS: Record<string, string> = {
+  FAR_LEFT: 'Far L', LEFT: 'Left', CENTER_LEFT: 'Ctr-L',
+  CENTER: 'Ctr', CENTER_RIGHT: 'Ctr-R', RIGHT: 'Right', FAR_RIGHT: 'Far R',
+};
+
+/** Build one-line evidence summary: "Confirmed by 5 sources across Left, Center, and Right" */
+function buildEvidenceSummary(biasTiers: string[], articleCount: number): string {
+  if (articleCount <= 1) return '1 source — awaiting confirmation';
+  const readable = biasTiers.map(t => TIER_SHORT_LABELS[t] || t.replace(/_/g, ' ')).filter(Boolean);
+  if (readable.length === 0) return `${articleCount} sources`;
+  if (readable.length <= 3) return `${articleCount} sources across ${readable.join(', ')}`;
+  return `${articleCount} sources across ${readable.slice(0, 2).join(', ')} and ${readable.length - 2} more`;
 }
 
 export interface StoryListRowProps {
@@ -106,7 +110,9 @@ function StoryListRow({
             strokeDasharray={`${(convergencePct / 100) * 44} 44`}
           />
         </svg>
-        <span className="text-[10px] font-mono text-ink-faint">{convergencePct}%</span>
+        <span className="text-[10px] font-mono text-ink-faint">
+          {convergencePct >= 70 ? 'Strong' : convergencePct >= 30 ? 'Mixed' : 'Weak'}
+        </span>
       </div>
 
       {/* Main content */}
@@ -119,39 +125,29 @@ function StoryListRow({
           {title}
         </h3>
 
-        {/* Source pills */}
-        {sourceNames.length > 0 && (
-          <div className="flex gap-1 mt-1 flex-wrap">
-            {sourceNames.slice(0, 5).map((name) => (
-              <span
-                key={name}
-                className="text-[10px] px-1.5 py-0.5 bg-ink/5 rounded-sm text-ink-muted"
-              >
-                {name}
-              </span>
-            ))}
-            {sourceNames.length > 5 && (
-              <span className="text-[10px] text-ink-faint">
-                +{sourceNames.length - 5}
-              </span>
-            )}
-          </div>
-        )}
+        {/* Evidence summary */}
+        <p className="text-[11px] text-ink-muted mt-1">
+          {buildEvidenceSummary(biasTiers, articleCount)}
+          {claimCount > 0 && <span className="text-ink-faint"> · {claimCount} claims</span>}
+          {regions.length > 1 && <span className="text-ink-faint"> · {regions.length} regions</span>}
+        </p>
 
-        {/* Metadata line */}
-        <div className="flex items-center gap-2 mt-1 text-[10px] text-ink-faint">
-          <span
-            className="inline-flex items-center gap-1"
-            style={{ color: signalConfig.color }}
-          >
-            <span aria-hidden="true">{signalConfig.icon}</span>
-            {signalConfig.label}
-          </span>
-          <span>{articleCount} outlets</span>
-          <span>{claimCount} claims</span>
-          {regions.length > 1 && (
-            <span>{regions.length} regions</span>
-          )}
+        {/* Discrete bias spectrum — 7 cells showing which tiers are present */}
+        <div className="flex gap-px mt-1.5" aria-label="Bias spectrum coverage">
+          {TIER_ORDER.map((tier) => {
+            const isPresent = biasTiers.includes(tier);
+            return (
+              <div
+                key={tier}
+                className="h-1.5 flex-1 rounded-[1px] transition-opacity"
+                style={{
+                  backgroundColor: isPresent ? TIER_COLORS[tier] : undefined,
+                  opacity: isPresent ? 1 : 0.12,
+                }}
+                title={isPresent ? TIER_SHORT_LABELS[tier] : undefined}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -185,11 +181,6 @@ function StoryListRow({
         <div className="text-[10px] text-ink-faint">{timeAgo}</div>
       </div>
 
-      {/* Bottom: Inline bias spectrum bar (single gradient div) */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-        style={{ background: buildSpectrumGradient(biasTiers) }}
-      />
     </article>
   );
 }

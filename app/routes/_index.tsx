@@ -8,7 +8,7 @@ import { Link, useLoaderData, useFetcher, useSearchParams, useNavigate } from 'r
 
 import { prisma } from '~/lib/prisma.server';
 import { getUser } from '~/lib/auth.server';
-import { getTodayUsage } from '~/lib/usage-tracking';
+// Usage tracking retained for analytics — no longer gates content
 import { lazy, Suspense } from 'react';
 import DashboardLayout from '~/components/panels/DashboardLayout';
 import WirePanel from '~/components/wire/WirePanel';
@@ -62,7 +62,7 @@ export async function loader({ request }: { request: Request }) {
       { claims: { _count: 'desc' } },
       { createdAt: 'desc' },
     ],
-    take: user ? 100 : 50,
+    take: 100,
   });
 
   // Transform to StoryListRowProps shape
@@ -89,10 +89,8 @@ export async function loader({ request }: { request: Request }) {
     };
   });
 
-  // Sort: multi-source first, then convergence, then recency
+  // Sort: pure convergence score descending, then recency
   storyRows.sort((a, b) => {
-    if (a.articleCount >= 2 && b.articleCount < 2) return -1;
-    if (b.articleCount >= 2 && a.articleCount < 2) return 1;
     if (a.convergenceScore !== b.convergenceScore) return b.convergenceScore - a.convergenceScore;
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
@@ -108,18 +106,22 @@ export async function loader({ request }: { request: Request }) {
     ? filtered.filter((s) => s.regions.some((r: string) => regionFilter.includes(r)))
     : filtered;
 
-  // Free tier limit
-  const usage = user?.tier === 'FREE'
-    ? getTodayUsage(request.headers.get('cookie'))
-    : null;
+  // Usage tracking (analytics only — no limits on truth)
+  const usage = null;
+
+  // For logged-out users: only show stories with meaningful convergence
+  // Avoids showing weak/red stories that undermine credibility for new visitors
+  const frontPageStories = user
+    ? regionFiltered
+    : regionFiltered.filter((s) => s.convergenceScore >= 0.3 || s.articleCount >= 2);
 
   // Today's surprise: highest convergence story with widest ideological spread
-  const surprise = regionFiltered.find(
+  const surprise = frontPageStories.find(
     (s) => s.convergenceScore > 0.5 && s.biasTiers.length >= 3
   );
 
   return {
-    stories: regionFiltered.slice(0, 40),
+    stories: frontPageStories.slice(0, 40),
     totalCount: regionFiltered.length,
     user: user ? {
       id: user.id,
@@ -160,9 +162,9 @@ export default function Home() {
     onClick: () => selectStory(s.id),
   }));
 
-  // Logged-out landing page
+  // Logged-out: full wire with condensed hero — truth is free
   if (!user) {
-    return <LoggedOutLanding stories={wireStories.slice(0, 5)} surprise={surprise} />;
+    return <LoggedOutLanding stories={wireStories} surprise={surprise} />;
   }
 
   // Logged-in: full command center
@@ -225,8 +227,8 @@ function LoggedOutLanding({
 
   return (
     <div className="min-h-screen">
-      {/* Condensed hero */}
-      <section className="relative overflow-hidden">
+      {/* Condensed hero — tight, purposeful, gets out of the way */}
+      <section className="relative overflow-hidden border-b border-border">
         <div
           className="absolute inset-0 opacity-[0.02]"
           style={{
@@ -235,70 +237,66 @@ function LoggedOutLanding({
             backgroundSize: '60px 60px',
           }}
         />
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 pt-12 pb-8 text-center">
-          {/* Founder badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-brand-green/8 border border-brand-green/15 text-brand-green text-xs font-medium mb-6 animate-fade-in">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-green signal-pulse" />
-            Founder Member Access — Free for Life
-          </div>
-
-          <h1 className="font-headline text-3xl sm:text-4xl font-bold text-ink leading-tight mb-4 animate-fade-in">
-            See where the sources{' '}
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-6 text-center">
+          <h1 className="font-headline text-2xl sm:text-3xl font-bold text-ink leading-tight mb-2 animate-fade-in">
+            Where the sources{' '}
             <span className="relative">
               agree
               <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-brand-green/40" />
             </span>
-            .
           </h1>
-          <p className="text-sm text-ink-muted max-w-lg mx-auto mb-6 animate-fade-in">
-            Triangulate clusters news from 76+ outlets across the political spectrum.
-            Where ideologically opposed sources confirm the same facts — that&apos;s the signal.
+          <p className="text-sm text-ink-muted max-w-md mx-auto mb-4 animate-fade-in">
+            76+ outlets across the political spectrum. When ideologically opposed sources
+            confirm the same facts, that&apos;s the signal worth reading.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4 animate-fade-in">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 animate-fade-in">
             <Link
               to="/auth/signin"
-              className="px-6 py-2.5 bg-ink text-paper rounded-sm font-medium hover:bg-ink-light transition-colors text-sm"
+              className="px-5 py-2 bg-ink text-paper rounded-sm font-medium hover:bg-ink-light transition-colors text-sm"
             >
-              Get Started Free
+              Sign in for Pro Tools
             </Link>
             <Link
-              to="/pricing"
-              className="px-6 py-2.5 text-ink border border-border-strong rounded-sm font-medium hover:border-ink/30 transition-colors text-sm"
+              to="/how-it-works"
+              className="px-5 py-2 text-ink-muted text-sm hover:text-ink transition-colors"
             >
-              See Pricing
+              How it works
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Today's Surprise */}
+      {/* Today's Surprise — the hook */}
       {surprise && (
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3">
           <TodaysSurprise
             storyId={surprise.id}
             sourcePair={surprise.sourceNames.slice(0, 2).join(' and ') || 'Multiple sources'}
             factCount={surprise.claimCount || 0}
             topic={surprise.title.split(' ').slice(0, 4).join(' ')}
             convergencePct={Math.round(surprise.convergenceScore * 100)}
-            onClick={() => navigate('/auth/signin')}
+            onClick={() => navigate(`/story/${surprise.id}`)}
           />
         </div>
       )}
 
-      {/* Live Wire preview */}
-      <section className="border-t border-border mt-6">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-4 pb-10">
+      {/* Full Wire — truth is free */}
+      <section className="border-t border-border">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-3 pb-10">
           <div className="text-center mb-3">
             <p className="dateline">{today}</p>
           </div>
           <WirePanel stories={stories} />
           {stories.length > 0 && (
-            <div className="text-center mt-4">
+            <div className="text-center mt-6 py-4 border-t border-border">
+              <p className="text-sm text-ink-muted mb-2">
+                Want export tools, saved workspaces, and source intelligence?
+              </p>
               <Link
                 to="/auth/signin"
                 className="text-sm text-brand-green font-medium hover:underline"
               >
-                Sign in to see more stories and unlock filters
+                Sign in to unlock Pro tools
               </Link>
             </div>
           )}
